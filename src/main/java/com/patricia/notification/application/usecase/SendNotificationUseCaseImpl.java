@@ -25,8 +25,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
 
     @Override
     public Notification execute(String userId, NotificationType type,
-                                NotificationChannel channel, String title,
-                                String body, String referenceId) {
+                                String title, String body, String referenceId) {
 
         if (userId == null || userId.isBlank()) {
             throw new InvalidNotificationException("el campo userId es obligatorio");

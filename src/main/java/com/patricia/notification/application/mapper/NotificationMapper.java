@@ -2,6 +2,7 @@ package com.patricia.notification.application.mapper;
 
 import com.patricia.notification.application.dto.response.NotificationPreferencesResponse;
 import com.patricia.notification.application.dto.response.NotificationResponse;
+import com.patricia.notification.application.dto.response.UnreadNotificationCountResponse;
 import com.patricia.notification.domain.model.Notification;
 import com.patricia.notification.domain.model.NotificationPreferences;
 import org.springframework.stereotype.Component;
@@ -32,6 +33,12 @@ public class NotificationMapper {
                 .nearbyParche(preferences.isNearbyParche())
                 .achievementUnlocked(preferences.isAchievementUnlocked())
                 .parcheInvitation(preferences.isParcheInvitation())
+                .build();
+    }
+
+    public UnreadNotificationCountResponse toUnreadCountResponse(int count) {
+        return UnreadNotificationCountResponse.builder()
+                .count(count)
                 .build();
     }
 }

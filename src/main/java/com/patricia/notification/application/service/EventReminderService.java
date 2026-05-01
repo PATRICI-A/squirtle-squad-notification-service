@@ -1,7 +1,6 @@
 package com.patricia.notification.application.service;
 
 import com.patricia.notification.domain.model.EventReminder;
-import com.patricia.notification.domain.model.enums.NotificationChannel;
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
 import com.patricia.notification.domain.ports.out.EventReminderRepository;
@@ -27,7 +26,6 @@ public class EventReminderService {
                 sendNotificationUseCase.execute(
                         reminder.getUserId(),
                         NotificationType.EVENT_REMINDER,
-                        NotificationChannel.IN_APP,
                         "Recordatorio de evento",
                         "Tu evento comienza en 24 horas",
                         reminder.getEventId()
@@ -40,7 +38,6 @@ public class EventReminderService {
                 sendNotificationUseCase.execute(
                         reminder.getUserId(),
                         NotificationType.EVENT_REMINDER,
-                        NotificationChannel.IN_APP,
                         "Recordatorio de evento",
                         "Tu evento comienza en 1 hora",
                         reminder.getEventId()

@@ -9,7 +9,7 @@ import com.patricia.notification.domain.ports.in.GetPreferencesUseCase;
 import com.patricia.notification.domain.ports.in.GetUnreadCountUseCase;
 import com.patricia.notification.domain.ports.in.MarkAsReadUseCase;
 import com.patricia.notification.domain.ports.in.UpdatePreferencesUseCase;
-import com.patricia.notification.entrypoints.rest.mapper.NotificationRestMapper;
+import com.patricia.notification.application.mapper.NotificationMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,7 +35,7 @@ public class NotificationController {
     private final MarkAsReadUseCase markAsReadUseCase;
     private final GetPreferencesUseCase getPreferencesUseCase;
     private final UpdatePreferencesUseCase updatePreferencesUseCase;
-    private final NotificationRestMapper mapper;
+    private final NotificationMapper mapper;
 
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getNotifications(

@@ -1,5 +1,6 @@
 package com.patricia.notification.infrastructure.adapters.adapter;
 
+import com.patricia.notification.application.mapper.NotificationMapper;
 import com.patricia.notification.domain.model.Notification;
 import com.patricia.notification.domain.ports.out.NotificationDeliveryPort;
 import lombok.RequiredArgsConstructor;
@@ -13,12 +14,13 @@ import org.springframework.stereotype.Component;
 public class WebSocketNotificationAdapter implements NotificationDeliveryPort {
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationMapper mapper;
 
     @Override
     public void deliver(Notification notification) {
         String destination = "/topic/notifications/" + notification.getUserId();
         try {
-            messagingTemplate.convertAndSend(destination, notification);
+            messagingTemplate.convertAndSend(destination, mapper.toResponse(notification));
             log.info("Notificación entregada via WebSocket al usuario {}",
                     notification.getUserId());
         } catch (Exception e) {
