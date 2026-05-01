@@ -19,6 +19,36 @@ services:
       - redis
       - rabbitmq
 
+  connection-service:
+    # Esqueleto inicial - Reemplazar con 'build: context: ../connection-service' cuando exista
+    image: alpine:latest
+    container_name: squirtle-connection-service
+    command: tail -f /dev/null
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/squirtle_db
+      - SPRING_DATASOURCE_USERNAME=squirtle_user
+      - SPRING_DATASOURCE_PASSWORD=squirtle_pass
+    depends_on:
+      - postgres
+
+  chat-service:
+    # Esqueleto inicial - Reemplazar con 'build: context: ../chat-service' cuando exista
+    image: alpine:latest
+    container_name: squirtle-chat-service
+    command: tail -f /dev/null
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/squirtle_db
+      - SPRING_DATASOURCE_USERNAME=squirtle_user
+      - SPRING_DATASOURCE_PASSWORD=squirtle_pass
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - postgres
+      - rabbitmq
+
   postgres:
     image: postgres:15-alpine
     container_name: squirtle-postgres

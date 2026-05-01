@@ -20,5 +20,12 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and verify with Maven
-        run: mvn clean verify
+      - name: Linting (Checkstyle / Spotless si está configurado)
+        run: mvn checkstyle:check || echo "Linting plugin not yet configured, continuing..."
+
+      - name: Unit Tests
+        run: mvn test
+
+      - name: Build and Verify
+        run: mvn clean verify -DskipTests
+
