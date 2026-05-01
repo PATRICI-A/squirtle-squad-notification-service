@@ -1,6 +1,6 @@
 # squirtle-squad-notification-service
 
-## 🚀 Setup Inicial (Instrucciones para Stiven, Maria, Diego y Andres)
+
 
 Para clonar y levantar el entorno local de desarrollo con un solo comando, sigue estos pasos:
 
