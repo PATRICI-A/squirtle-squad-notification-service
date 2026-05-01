@@ -7,11 +7,11 @@ import com.patricia.notification.domain.model.NotificationPreferences;
 import com.patricia.notification.domain.model.enums.NotificationChannel;
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.domain.ports.out.NotificationDeliveryPort;
 import com.patricia.notification.domain.ports.out.NotificationRepository;
 import com.patricia.notification.domain.ports.out.PreferencesRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
 
 import java.time.LocalDateTime;
 
@@ -21,6 +21,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
 
     private final NotificationRepository notificationRepository;
     private final PreferencesRepository preferencesRepository;
+    private final NotificationDeliveryPort notificationDeliveryPort;
 
     @Override
     public Notification execute(String userId, NotificationType type,
@@ -56,7 +57,11 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return notificationRepository.save(notification);
+        Notification saved = notificationRepository.save(notification);
+
+        notificationDeliveryPort.deliver(saved);
+
+        return saved;
     }
 
     private NotificationPreferences buildDefaultPreferences(String userId) {
