@@ -27,7 +27,7 @@ public class EventReminderService {
                 sendNotificationUseCase.execute(
                         reminder.getUserId(),
                         NotificationType.EVENT_REMINDER,
-                        NotificationChannel.PUSH,
+                        NotificationChannel.IN_APP,
                         "Recordatorio de evento",
                         "Tu evento comienza en 24 horas",
                         reminder.getEventId()
@@ -40,7 +40,7 @@ public class EventReminderService {
                 sendNotificationUseCase.execute(
                         reminder.getUserId(),
                         NotificationType.EVENT_REMINDER,
-                        NotificationChannel.PUSH,
+                        NotificationChannel.IN_APP,
                         "Recordatorio de evento",
                         "Tu evento comienza en 1 hora",
                         reminder.getEventId()

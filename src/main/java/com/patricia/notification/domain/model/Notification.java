@@ -25,13 +25,7 @@ public class Notification {
         this.read = true;
     }
 
-    public boolean isPush() {
-        return this.channel == NotificationChannel.PUSH
-                || this.channel == NotificationChannel.PUSH_AND_IN_APP;
-    }
-
     public boolean isInApp() {
-        return this.channel == NotificationChannel.IN_APP
-                || this.channel == NotificationChannel.PUSH_AND_IN_APP;
+        return this.channel == NotificationChannel.IN_APP;
     }
 }
