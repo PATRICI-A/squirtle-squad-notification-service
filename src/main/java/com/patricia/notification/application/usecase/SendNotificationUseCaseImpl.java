@@ -81,6 +81,8 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
                 .nearbyParche(false)
                 .achievementUnlocked(true)
                 .parcheInvitation(true)
+                .otpVerification(true)
+                .passwordReset(true)
                 .build();
     }
 }

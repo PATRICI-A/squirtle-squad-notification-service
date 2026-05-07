@@ -19,6 +19,8 @@ public class NotificationPreferences {
     private boolean nearbyParche;
     private boolean achievementUnlocked;
     private boolean parcheInvitation;
+    private boolean otpVerification;
+    private boolean passwordReset;
     private LocalDateTime updatedAt;
 
     public boolean isEnabled(NotificationType type) {
@@ -29,6 +31,8 @@ public class NotificationPreferences {
             case NEARBY_PARCHE -> this.nearbyParche;
             case ACHIEVEMENT_UNLOCKED -> this.achievementUnlocked;
             case PARCHE_INVITATION -> this.parcheInvitation;
+            case OTP_VERIFICATION -> this.otpVerification;
+            case PASSWORD_RESET -> this.passwordReset;
         };
     }
 
@@ -40,6 +44,8 @@ public class NotificationPreferences {
             case NEARBY_PARCHE -> this.nearbyParche = enabled;
             case ACHIEVEMENT_UNLOCKED -> this.achievementUnlocked = enabled;
             case PARCHE_INVITATION -> this.parcheInvitation = enabled;
+            case OTP_VERIFICATION -> this.otpVerification = enabled;
+            case PASSWORD_RESET -> this.passwordReset = enabled;
         };
         this.updatedAt = LocalDateTime.now();
     }

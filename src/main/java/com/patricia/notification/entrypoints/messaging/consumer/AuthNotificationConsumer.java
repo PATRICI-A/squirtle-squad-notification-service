@@ -22,7 +22,7 @@ public class AuthNotificationConsumer {
         log.info("Evento recibido: OTP verificación para {}", event.getEmail());
         sendNotificationUseCase.execute(
                 event.getEmail(),
-                NotificationType.EVENT_REMINDER,
+                NotificationType.OTP_VERIFICATION,
                 "Código de verificación",
                 "Tu código de verificación es: " + event.getOtpCode(),
                 null
@@ -34,7 +34,7 @@ public class AuthNotificationConsumer {
         log.info("Evento recibido: OTP reenvío para {}", event.getEmail());
         sendNotificationUseCase.execute(
                 event.getEmail(),
-                NotificationType.EVENT_REMINDER,
+                NotificationType.OTP_VERIFICATION,
                 "Nuevo código de verificación",
                 "Tu nuevo código de verificación es: " + event.getOtpCode(),
                 null
@@ -46,7 +46,7 @@ public class AuthNotificationConsumer {
         log.info("Evento recibido: recuperación de contraseña para {}", event.getEmail());
         sendNotificationUseCase.execute(
                 event.getEmail(),
-                NotificationType.EVENT_REMINDER,
+                NotificationType.PASSWORD_RESET,
                 "Recuperación de contraseña",
                 "Tu código de recuperación es: " + event.getResetCode(),
                 event.getUserId()
