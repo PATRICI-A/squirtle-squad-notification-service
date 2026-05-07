@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -21,7 +22,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
 
     private final NotificationRepository notificationRepository;
     private final PreferencesRepository preferencesRepository;
-    private final NotificationDeliveryPort notificationDeliveryPort;
+    private final List<NotificationDeliveryPort> deliveryPorts; // inyecta ambos adapters
 
     @Override
     public Notification execute(String userId, NotificationType type,
@@ -37,6 +38,11 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
             throw new InvalidNotificationException("el campo body no puede estar vacío");
         }
 
+
+        NotificationChannel channel = userId.contains("@")
+                ? NotificationChannel.EMAIL
+                : NotificationChannel.IN_APP;
+
         NotificationPreferences preferences = preferencesRepository
                 .findByUserId(userId)
                 .orElseGet(() -> buildDefaultPreferences(userId));
@@ -48,7 +54,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
         Notification notification = Notification.builder()
                 .userId(userId)
                 .type(type)
-                .channel(NotificationChannel.IN_APP)
+                .channel(channel)
                 .title(title)
                 .body(body)
                 .read(false)
@@ -58,7 +64,10 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
 
         Notification saved = notificationRepository.save(notification);
 
-        notificationDeliveryPort.deliver(saved);
+        deliveryPorts.stream()
+                .filter(port -> port.supportedChannel() == channel)
+                .findFirst()
+                .ifPresent(port -> port.deliver(saved));
 
         return saved;
     }

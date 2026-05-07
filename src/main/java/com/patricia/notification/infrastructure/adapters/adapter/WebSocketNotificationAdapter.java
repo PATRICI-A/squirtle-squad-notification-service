@@ -2,6 +2,7 @@ package com.patricia.notification.infrastructure.adapters.adapter;
 
 import com.patricia.notification.application.mapper.NotificationMapper;
 import com.patricia.notification.domain.model.Notification;
+import com.patricia.notification.domain.model.enums.NotificationChannel;
 import com.patricia.notification.domain.ports.out.NotificationDeliveryPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,5 +28,10 @@ public class WebSocketNotificationAdapter implements NotificationDeliveryPort {
             log.error("Error entregando notificación via WebSocket al usuario {}: {}",
                     notification.getUserId(), e.getMessage());
         }
+    }
+
+    @Override
+    public NotificationChannel supportedChannel() {
+        return NotificationChannel.IN_APP;
     }
 }
