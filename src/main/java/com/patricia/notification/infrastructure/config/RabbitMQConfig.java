@@ -1,0 +1,141 @@
+package com.patricia.notification.infrastructure.config;
+
+import org.springframework.amqp.core.*;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class RabbitMQConfig {
+
+    //Exchanges
+    @Value("${rabbitmq.exchange.auth}")
+    private String authExchange;
+
+    @Value("${rabbitmq.exchange.parche}")
+    private String parcheExchange;
+
+    @Value("${rabbitmq.exchange.social}")
+    private String socialExchange;
+
+    //Queues
+    @Value("${rabbitmq.queue.otp-verification}")
+    private String otpVerificationQueue;
+
+    @Value("${rabbitmq.queue.otp-resend}")
+    private String otpResendQueue;
+
+    @Value("${rabbitmq.queue.password-reset}")
+    private String passwordResetQueue;
+
+    @Value("${rabbitmq.queue.parche-invitation}")
+    private String parcheInvitationQueue;
+
+    @Value("${rabbitmq.queue.nearby-parche}")
+    private String nearbyParcheQueue;
+
+    @Value("${rabbitmq.queue.connection-request}")
+    private String connectionRequestQueue;
+
+    //Routing Keys
+    @Value("${rabbitmq.routing-key.otp-verification}")
+    private String otpVerificationRoutingKey;
+
+    @Value("${rabbitmq.routing-key.otp-resend}")
+    private String otpResendRoutingKey;
+
+    @Value("${rabbitmq.routing-key.password-reset}")
+    private String passwordResetRoutingKey;
+
+    @Value("${rabbitmq.routing-key.parche-invitation}")
+    private String parcheInvitationRoutingKey;
+
+    @Value("${rabbitmq.routing-key.nearby-parche}")
+    private String nearbyParcheRoutingKey;
+
+    @Value("${rabbitmq.routing-key.connection-request}")
+    private String connectionRequestRoutingKey;
+
+    //Exchanges beans
+    @Bean
+    public TopicExchange authExchange() {
+        return new TopicExchange(authExchange);
+    }
+
+    @Bean
+    public TopicExchange parcheExchange() {
+        return new TopicExchange(parcheExchange);
+    }
+
+    @Bean
+    public TopicExchange socialExchange() {
+        return new TopicExchange(socialExchange);
+    }
+
+    //Queues beans
+    @Bean public Queue otpVerificationQueue() { return new Queue(otpVerificationQueue); }
+    @Bean public Queue otpResendQueue()        { return new Queue(otpResendQueue); }
+    @Bean public Queue passwordResetQueue()    { return new Queue(passwordResetQueue); }
+    @Bean public Queue parcheInvitationQueue() { return new Queue(parcheInvitationQueue); }
+    @Bean public Queue nearbyParcheQueue()     { return new Queue(nearbyParcheQueue); }
+    @Bean public Queue connectionRequestQueue(){ return new Queue(connectionRequestQueue); }
+
+    //Bindings (queue ↔ exchange <-> routing key)
+    @Bean
+    public Binding otpVerificationBinding() {
+        return BindingBuilder.bind(otpVerificationQueue())
+                .to(authExchange())
+                .with(otpVerificationRoutingKey);
+    }
+
+    @Bean
+    public Binding otpResendBinding() {
+        return BindingBuilder.bind(otpResendQueue())
+                .to(authExchange())
+                .with(otpResendRoutingKey);
+    }
+
+    @Bean
+    public Binding passwordResetBinding() {
+        return BindingBuilder.bind(passwordResetQueue())
+                .to(authExchange())
+                .with(passwordResetRoutingKey);
+    }
+
+    @Bean
+    public Binding parcheInvitationBinding() {
+        return BindingBuilder.bind(parcheInvitationQueue())
+                .to(parcheExchange())
+                .with(parcheInvitationRoutingKey);
+    }
+
+    @Bean
+    public Binding nearbyParcheBinding() {
+        return BindingBuilder.bind(nearbyParcheQueue())
+                .to(parcheExchange())
+                .with(nearbyParcheRoutingKey);
+    }
+
+    @Bean
+    public Binding connectionRequestBinding() {
+        return BindingBuilder.bind(connectionRequestQueue())
+                .to(socialExchange())
+                .with(connectionRequestRoutingKey);
+    }
+
+    //Convertidor JSON
+    @Bean
+    public Jackson2JsonMessageConverter messageConverter() {
+        return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate template = new RabbitTemplate(connectionFactory);
+        template.setMessageConverter(messageConverter());
+        return template;
+    }
+}
