@@ -10,9 +10,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OtpEventDto {
-    private UUID userId;
+public class OtpVerificationEventDto {
     private String email;
     private String otpCode;
-    private String userName;
 }
