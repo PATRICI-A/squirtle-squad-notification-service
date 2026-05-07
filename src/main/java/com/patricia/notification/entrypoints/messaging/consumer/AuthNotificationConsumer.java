@@ -24,7 +24,9 @@ public class AuthNotificationConsumer {
                 event.getEmail(),
                 NotificationType.OTP_VERIFICATION,
                 "Código de verificación",
-                "Tu código de verificación es: " + event.getOtpCode(),
+                "Tu código de verificación para PATRICIA es: " + event.getOtpCode()
+                        + "\n\nEste código es válido por 10 minutos."
+                        + "\n\nSi no solicitaste este código, ignora este mensaje.",
                 null
         );
     }
@@ -36,7 +38,9 @@ public class AuthNotificationConsumer {
                 event.getEmail(),
                 NotificationType.OTP_VERIFICATION,
                 "Nuevo código de verificación",
-                "Tu nuevo código de verificación es: " + event.getOtpCode(),
+                "Tu nuevo código de verificación para PATRICIA es: " + event.getOtpCode()
+                        + "\n\nEste código es válido por 10 minutos."
+                        + "\n\nSi no solicitaste este código, ignora este mensaje.",
                 null
         );
     }
@@ -48,7 +52,10 @@ public class AuthNotificationConsumer {
                 event.getEmail(),
                 NotificationType.PASSWORD_RESET,
                 "Recuperación de contraseña",
-                "Tu código de recuperación es: " + event.getResetCode(),
+                "Recibimos una solicitud para restablecer tu contraseña en PATRICIA."
+                        + "\n\nTu código de recuperación es: " + event.getResetCode()
+                        + "\n\nEste código es válido por 10 minutos."
+                        + "\n\nSi no solicitaste esto, ignora este mensaje. Tu contraseña no cambiará.",
                 event.getUserId()
         );
     }
