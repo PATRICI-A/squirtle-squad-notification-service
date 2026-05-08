@@ -1,0 +1,68 @@
+package com.patricia.notification;
+
+import com.patricia.notification.domain.model.enums.NotificationType;
+import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.entrypoints.messaging.consumer.ParcheNotificationConsumer;
+import com.patricia.notification.entrypoints.messaging.dto.NearbyParcheEventDto;
+import com.patricia.notification.entrypoints.messaging.dto.ParcheInvitationEventDto;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
+
+@ExtendWith(MockitoExtension.class)
+class ParcheNotificationConsumerTest {
+
+    @Mock
+    private SendNotificationUseCase sendNotificationUseCase;
+
+    @InjectMocks
+    private ParcheNotificationConsumer consumer;
+
+    @Test
+    @DisplayName("handleParcheInvitation debe enviar notificación de invitación al parche")
+    void handleParcheInvitation_shouldSendInvitationNotification() {
+        ParcheInvitationEventDto event = ParcheInvitationEventDto.builder()
+                .targetUserId("user-456")
+                .inviterUserName("Juan")
+                .parcheId("parche-789")
+                .parcheName("Parche del viernes")
+                .build();
+
+        consumer.handleParcheInvitation(event);
+
+        verify(sendNotificationUseCase).execute(
+                eq("user-456"),
+                eq(NotificationType.PARCHE_INVITATION),
+                eq("Te invitaron a un parche"),
+                contains("Juan"),
+                eq("parche-789")
+        );
+    }
+
+    @Test
+    @DisplayName("handleNearbyParche debe enviar notificación de parche cercano con distancia")
+    void handleNearbyParche_shouldSendNearbyNotificationWithDistance() {
+        NearbyParcheEventDto event = NearbyParcheEventDto.builder()
+                .targetUserId("user-123")
+                .parcheId("parche-001")
+                .parcheName("Parche en la plaza")
+                .distanceKm(0.5)
+                .build();
+
+        consumer.handleNearbyParche(event);
+
+        verify(sendNotificationUseCase).execute(
+                eq("user-123"),
+                eq(NotificationType.NEARBY_PARCHE),
+                eq("Parche cercano"),
+                contains("Parche en la plaza"),
+                eq("parche-001")
+        );
+    }
+}

@@ -1,5 +1,6 @@
 package com.patricia.notification;
 
+import com.patricia.notification.application.usecase.SendNotificationUseCaseImpl;
 import com.patricia.notification.domain.exceptions.InvalidNotificationException;
 import com.patricia.notification.domain.exceptions.NotificationTypeDisabledException;
 import com.patricia.notification.domain.model.Notification;
@@ -9,16 +10,15 @@ import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.out.NotificationDeliveryPort;
 import com.patricia.notification.domain.ports.out.NotificationRepository;
 import com.patricia.notification.domain.ports.out.PreferencesRepository;
-import com.patricia.notification.application.usecase.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,13 +38,18 @@ class SendNotificationUseCaseImplTest {
     @Mock
     private NotificationDeliveryPort notificationDeliveryPort;
 
-    @InjectMocks
     private SendNotificationUseCaseImpl useCase;
 
     private NotificationPreferences preferencesAllEnabled;
 
     @BeforeEach
     void setUp() {
+        // Configurar el mock con lenient() para evitar errores de UnnecessaryStubbingException
+        lenient().when(notificationDeliveryPort.supportedChannel()).thenReturn(NotificationChannel.IN_APP);
+        
+        // Instanciamos el use case manualmente y pasamos la lista con el mock del delivery port.
+        useCase = new SendNotificationUseCaseImpl(notificationRepository, preferencesRepository, List.of(notificationDeliveryPort));
+
         preferencesAllEnabled = NotificationPreferences.builder()
                 .userId("user-123")
                 .connectionRequest(true)
@@ -55,7 +60,6 @@ class SendNotificationUseCaseImplTest {
                 .parcheInvitation(true)
                 .build();
     }
-
 
     @Test
     @DisplayName("Debe crear, persistir y entregar la notificación correctamente")
@@ -211,4 +215,3 @@ class SendNotificationUseCaseImplTest {
                 .isInstanceOf(NotificationTypeDisabledException.class);
     }
 }
-
