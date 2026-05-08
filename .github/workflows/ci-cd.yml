@@ -23,7 +23,7 @@ jobs:
   # Las conexiones fallidas a RabbitMQ generan warnings pero no fallan los tests.
   # ═══════════════════════════════════════════════════════════════════════════
   build-and-test:
-    name: "CI – Build & Test (JDK 21)"
+    name: build-and-test
     runs-on: ubuntu-latest
 
     steps:
