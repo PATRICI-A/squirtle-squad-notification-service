@@ -21,6 +21,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.social}")
     private String socialExchange;
 
+    @Value("${rabbitmq.exchange.hangoutExchange}")
+    private String hangoutExchange;
+
     //Queues
     @Value("${rabbitmq.queue.otp-verification}")
     private String otpVerificationQueue;

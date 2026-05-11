@@ -22,7 +22,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
 
     private final NotificationRepository notificationRepository;
     private final PreferencesRepository preferencesRepository;
-    private final List<NotificationDeliveryPort> deliveryPorts; // inyecta ambos adapters
+    private final List<NotificationDeliveryPort> deliveryPorts;
 
     @Override
     public Notification execute(String userId, NotificationType type,

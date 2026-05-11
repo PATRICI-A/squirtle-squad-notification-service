@@ -19,5 +19,4 @@ public class InvitationAcceptedEventDto {
     private UUID studentId;
     private UUID captainId;
     private LocalDateTime ocurredAt;
-
 }
