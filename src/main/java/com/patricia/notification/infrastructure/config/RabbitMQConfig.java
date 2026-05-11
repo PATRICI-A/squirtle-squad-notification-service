@@ -21,7 +21,7 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.social}")
     private String socialExchange;
 
-    @Value("${rabbitmq.exchange.hangoutExchange}")
+    @Value("${rabbitmq.exchange.hangout}")
     private String hangoutExchange;
 
     //Queues
@@ -78,6 +78,29 @@ public class RabbitMQConfig {
         return new TopicExchange(socialExchange);
     }
 
+    @Bean
+    public TopicExchange hangoutExchange() {
+        return new TopicExchange(hangoutExchange);
+    }
+
+    @Value("${rabbitmq.queue.invitation-accepted}")
+    private String invitationAcceptedQueue;
+
+    @Value("${rabbitmq.queue.invitation-sent}")
+    private String invitationSentQueue;
+
+    @Value("${rabbitmq.queue.member-joined}")
+    private String memberJoinedQueue;
+
+    @Value("${rabbitmq.routing-key.invitation-accepted}")
+    private String invitationAcceptedRoutingKey;
+
+    @Value("${rabbitmq.routing-key.invitation-sent}")
+    private String invitationSentRoutingKey;
+
+    @Value("${rabbitmq.routing-key.member-joined}")
+    private String memberJoinedRoutingKey;
+
     //Queues beans
     @Bean public Queue otpVerificationQueue() { return new Queue(otpVerificationQueue); }
     @Bean public Queue otpResendQueue()        { return new Queue(otpResendQueue); }
@@ -85,6 +108,9 @@ public class RabbitMQConfig {
     @Bean public Queue parcheInvitationQueue() { return new Queue(parcheInvitationQueue); }
     @Bean public Queue nearbyParcheQueue()     { return new Queue(nearbyParcheQueue); }
     @Bean public Queue connectionRequestQueue(){ return new Queue(connectionRequestQueue); }
+    @Bean public Queue invitationAcceptedQueue(){ return new Queue(invitationAcceptedQueue); }
+    @Bean public Queue invitationSentQueue()    { return new Queue(invitationSentQueue); }
+    @Bean public Queue memberJoinedQueue()      { return new Queue(memberJoinedQueue); }
 
     //Bindings
     @Bean
@@ -127,6 +153,27 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(connectionRequestQueue())
                 .to(socialExchange())
                 .with(connectionRequestRoutingKey);
+    }
+
+    @Bean
+    public Binding invitationAcceptedBinding() {
+        return BindingBuilder.bind(invitationAcceptedQueue())
+                .to(hangoutExchange())
+                .with(invitationAcceptedRoutingKey);
+    }
+
+    @Bean
+    public Binding invitationSentBinding() {
+        return BindingBuilder.bind(invitationSentQueue())
+                .to(hangoutExchange())
+                .with(invitationSentRoutingKey);
+    }
+
+    @Bean
+    public Binding memberJoinedBinding() {
+        return BindingBuilder.bind(memberJoinedQueue())
+                .to(hangoutExchange())
+                .with(memberJoinedRoutingKey);
     }
 
     //Convertidor JSON
