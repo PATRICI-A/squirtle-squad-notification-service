@@ -83,7 +83,7 @@ public class RabbitMQConfig {
     @Bean public Queue nearbyParcheQueue()     { return new Queue(nearbyParcheQueue); }
     @Bean public Queue connectionRequestQueue(){ return new Queue(connectionRequestQueue); }
 
-    //Bindings (queue ↔ exchange <-> routing key)
+    //Bindings
     @Bean
     public Binding otpVerificationBinding() {
         return BindingBuilder.bind(otpVerificationQueue())
