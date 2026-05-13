@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -30,6 +31,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class NotificationControllerTest {
+
+    private static final UUID USER_ID   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID  = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_ID2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID REF_ID    = UUID.fromString("00000000-0000-0000-0000-000000000020");
 
     @Mock private SendNotificationUseCase sendNotificationUseCase;
     @Mock private GetNotificationsUseCase getNotificationsUseCase;
@@ -46,27 +52,27 @@ class NotificationControllerTest {
     @DisplayName("sendNotification debe retornar 201 con la notificación creada")
     void sendNotification_shouldReturn201WithNotificationResponse() {
         SendNotificationRequest request = mock(SendNotificationRequest.class);
-        when(request.getUserId()).thenReturn("user-123");
+        when(request.getUserId()).thenReturn(USER_ID);
         when(request.getType()).thenReturn(NotificationType.PARCHE_MESSAGE);
         when(request.getTitle()).thenReturn("Título");
         when(request.getBody()).thenReturn("Cuerpo");
-        when(request.getReferenceId()).thenReturn("ref-456");
+        when(request.getReferenceId()).thenReturn(REF_ID);
 
         Notification notification = Notification.builder()
-                .id("notif-001").userId("user-123")
+                .id(NOTIF_ID).userId(USER_ID)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Título").body("Cuerpo").read(false)
                 .createdAt(LocalDateTime.now()).build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id("notif-001").userId("user-123")
+                .id(NOTIF_ID).userId(USER_ID)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Título").body("Cuerpo").read(false).build();
 
-        when(sendNotificationUseCase.execute("user-123", NotificationType.PARCHE_MESSAGE,
-                "Título", "Cuerpo", "ref-456")).thenReturn(notification);
+        when(sendNotificationUseCase.execute(USER_ID, NotificationType.PARCHE_MESSAGE,
+                "Título", "Cuerpo", REF_ID)).thenReturn(notification);
         when(mapper.toResponse(notification)).thenReturn(response);
 
         ResponseEntity<NotificationResponse> result = controller.sendNotification(request);
@@ -79,20 +85,20 @@ class NotificationControllerTest {
     @DisplayName("getNotifications debe retornar 200 con lista de notificaciones")
     void getNotifications_shouldReturn200WithList() {
         Notification notification = Notification.builder()
-                .id("n1").userId("user-123")
+                .id(NOTIF_ID2).userId(USER_ID)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("T").body("B").read(false).build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id("n1").userId("user-123").build();
+                .id(NOTIF_ID2).userId(USER_ID).build();
 
-        when(getNotificationsUseCase.execute("user-123", 0, 20))
+        when(getNotificationsUseCase.execute(USER_ID, 0, 20))
                 .thenReturn(List.of(notification));
         when(mapper.toResponse(notification)).thenReturn(response);
 
         ResponseEntity<List<NotificationResponse>> result =
-                controller.getNotifications("user-123", 0, 20);
+                controller.getNotifications(USER_ID.toString(), 0, 20);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody()).hasSize(1);
@@ -104,11 +110,11 @@ class NotificationControllerTest {
         UnreadNotificationCountResponse countResponse =
                 UnreadNotificationCountResponse.builder().count(7).build();
 
-        when(getUnreadCountUseCase.execute("user-123")).thenReturn(7);
+        when(getUnreadCountUseCase.execute(USER_ID)).thenReturn(7);
         when(mapper.toUnreadCountResponse(7)).thenReturn(countResponse);
 
         ResponseEntity<UnreadNotificationCountResponse> result =
-                controller.getUnreadCount("user-123");
+                controller.getUnreadCount(USER_ID.toString());
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody().getCount()).isEqualTo(7);
@@ -118,18 +124,18 @@ class NotificationControllerTest {
     @DisplayName("markSingleAsRead debe retornar 204")
     void markSingleAsRead_shouldReturn204() {
         ResponseEntity<Void> result =
-                controller.markSingleAsRead("notif-001", "user-123");
+                controller.markSingleAsRead(NOTIF_ID.toString(), USER_ID.toString());
 
-        verify(markAsReadUseCase).executeSingle("notif-001", "user-123");
+        verify(markAsReadUseCase).executeSingle(NOTIF_ID, USER_ID);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
     @Test
     @DisplayName("markAllAsRead debe retornar 204")
     void markAllAsRead_shouldReturn204() {
-        ResponseEntity<Void> result = controller.markAllAsRead("user-123");
+        ResponseEntity<Void> result = controller.markAllAsRead(USER_ID.toString());
 
-        verify(markAsReadUseCase).executeAll("user-123");
+        verify(markAsReadUseCase).executeAll(USER_ID);
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 
@@ -137,16 +143,16 @@ class NotificationControllerTest {
     @DisplayName("getPreferences debe retornar 200 con preferencias del usuario")
     void getPreferences_shouldReturn200WithPreferences() {
         NotificationPreferences preferences = NotificationPreferences.builder()
-                .userId("user-123").connectionRequest(true).parcheMessage(true).build();
+                .userId(USER_ID).connectionRequest(true).parcheMessage(true).build();
 
         NotificationPreferencesResponse prefsResponse = NotificationPreferencesResponse.builder()
                 .connectionRequest(true).parcheMessage(true).build();
 
-        when(getPreferencesUseCase.execute("user-123")).thenReturn(preferences);
+        when(getPreferencesUseCase.execute(USER_ID)).thenReturn(preferences);
         when(mapper.toPreferencesResponse(preferences)).thenReturn(prefsResponse);
 
         ResponseEntity<NotificationPreferencesResponse> result =
-                controller.getPreferences("user-123");
+                controller.getPreferences(USER_ID.toString());
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody().isConnectionRequest()).isTrue();
@@ -160,17 +166,17 @@ class NotificationControllerTest {
         when(request.getEnabled()).thenReturn(false);
 
         NotificationPreferences updated = NotificationPreferences.builder()
-                .userId("user-123").parcheMessage(false).build();
+                .userId(USER_ID).parcheMessage(false).build();
 
         NotificationPreferencesResponse prefsResponse = NotificationPreferencesResponse.builder()
                 .parcheMessage(false).build();
 
-        when(updatePreferencesUseCase.execute("user-123", NotificationType.PARCHE_MESSAGE, false))
+        when(updatePreferencesUseCase.execute(USER_ID, NotificationType.PARCHE_MESSAGE, false))
                 .thenReturn(updated);
         when(mapper.toPreferencesResponse(updated)).thenReturn(prefsResponse);
 
         ResponseEntity<NotificationPreferencesResponse> result =
-                controller.updatePreferences("user-123", request);
+                controller.updatePreferences(USER_ID.toString(), request);
 
         assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(result.getBody().isParcheMessage()).isFalse();

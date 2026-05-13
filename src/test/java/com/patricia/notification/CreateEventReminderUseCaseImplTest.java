@@ -12,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,6 +21,13 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CreateEventReminderUseCaseImplTest {
+
+    private static final UUID USER_ID_1  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID USER_ID_3  = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    private static final UUID EVENT_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID EVENT_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID EVENT_ID_3 = UUID.fromString("00000000-0000-0000-0000-000000000012");
 
     @Mock
     private EventReminderRepository eventReminderRepository;
@@ -31,11 +39,11 @@ class CreateEventReminderUseCaseImplTest {
     @DisplayName("Debe crear un recordatorio de evento y persistirlo")
     void execute_shouldCreateAndSaveEventReminder() {
         LocalDateTime eventDate = LocalDateTime.now().plusDays(1);
-        
+
         EventReminder saved = EventReminder.builder()
                 .id("reminder-001")
-                .userId("user-123")
-                .eventId("event-456")
+                .userId(USER_ID_1)
+                .eventId(EVENT_ID_1)
                 .eventDate(eventDate)
                 .reminded24h(false)
                 .reminded1h(false)
@@ -43,12 +51,12 @@ class CreateEventReminderUseCaseImplTest {
 
         when(eventReminderRepository.save(any(EventReminder.class))).thenReturn(saved);
 
-        EventReminder result = useCase.execute("user-123", "event-456", eventDate);
+        EventReminder result = useCase.execute(USER_ID_1, EVENT_ID_1, eventDate);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo("reminder-001");
-        assertThat(result.getUserId()).isEqualTo("user-123");
-        assertThat(result.getEventId()).isEqualTo("event-456");
+        assertThat(result.getUserId()).isEqualTo(USER_ID_1);
+        assertThat(result.getEventId()).isEqualTo(EVENT_ID_1);
         assertThat(result.getEventDate()).isEqualTo(eventDate);
         assertThat(result.isReminded24h()).isFalse();
         assertThat(result.isReminded1h()).isFalse();
@@ -62,8 +70,8 @@ class CreateEventReminderUseCaseImplTest {
 
         EventReminder saved = EventReminder.builder()
                 .id("reminder-002")
-                .userId("user-789")
-                .eventId("event-789")
+                .userId(USER_ID_2)
+                .eventId(EVENT_ID_2)
                 .eventDate(eventDate)
                 .reminded24h(false)
                 .reminded1h(false)
@@ -71,11 +79,11 @@ class CreateEventReminderUseCaseImplTest {
 
         when(eventReminderRepository.save(captor.capture())).thenReturn(saved);
 
-        useCase.execute("user-789", "event-789", eventDate);
+        useCase.execute(USER_ID_2, EVENT_ID_2, eventDate);
 
         EventReminder capturedReminder = captor.getValue();
-        assertThat(capturedReminder.getUserId()).isEqualTo("user-789");
-        assertThat(capturedReminder.getEventId()).isEqualTo("event-789");
+        assertThat(capturedReminder.getUserId()).isEqualTo(USER_ID_2);
+        assertThat(capturedReminder.getEventId()).isEqualTo(EVENT_ID_2);
         assertThat(capturedReminder.getEventDate()).isEqualTo(eventDate);
         assertThat(capturedReminder.isReminded24h()).isFalse();
         assertThat(capturedReminder.isReminded1h()).isFalse();
@@ -87,11 +95,11 @@ class CreateEventReminderUseCaseImplTest {
     @DisplayName("Debe retornar el recordatorio guardado")
     void execute_shouldReturnSavedReminder() {
         LocalDateTime eventDate = LocalDateTime.now().plusDays(7);
-        
+
         EventReminder saved = EventReminder.builder()
                 .id("reminder-003")
-                .userId("user-999")
-                .eventId("event-999")
+                .userId(USER_ID_3)
+                .eventId(EVENT_ID_3)
                 .eventDate(eventDate)
                 .reminded24h(false)
                 .reminded1h(false)
@@ -99,9 +107,8 @@ class CreateEventReminderUseCaseImplTest {
 
         when(eventReminderRepository.save(any(EventReminder.class))).thenReturn(saved);
 
-        EventReminder result = useCase.execute("user-999", "event-999", eventDate);
+        EventReminder result = useCase.execute(USER_ID_3, EVENT_ID_3, eventDate);
 
         assertThat(result).isEqualTo(saved);
     }
 }
-

@@ -8,10 +8,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NotificationPreferencesPersistenceMapperTest {
+
+    private static final UUID PREF_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID PREF_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID USER_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     private NotificationPreferencesPersistenceMapper mapper;
 
@@ -25,8 +31,8 @@ class NotificationPreferencesPersistenceMapperTest {
     void toDocument_shouldMapAllFields() {
         LocalDateTime updatedAt = LocalDateTime.now();
         NotificationPreferences preferences = NotificationPreferences.builder()
-                .id("pref-001")
-                .userId("user-123")
+                .id(PREF_ID_1)
+                .userId(USER_ID_1)
                 .connectionRequest(true)
                 .parcheMessage(false)
                 .eventReminder(true)
@@ -38,8 +44,8 @@ class NotificationPreferencesPersistenceMapperTest {
 
         NotificationPreferencesDocument doc = mapper.toDocument(preferences);
 
-        assertThat(doc.getId()).isEqualTo("pref-001");
-        assertThat(doc.getUserId()).isEqualTo("user-123");
+        assertThat(doc.getId()).isEqualTo(PREF_ID_1.toString());
+        assertThat(doc.getUserId()).isEqualTo(USER_ID_1.toString());
         assertThat(doc.isConnectionRequest()).isTrue();
         assertThat(doc.isParcheMessage()).isFalse();
         assertThat(doc.isEventReminder()).isTrue();
@@ -54,8 +60,8 @@ class NotificationPreferencesPersistenceMapperTest {
     void toDomain_shouldMapAllFields() {
         LocalDateTime updatedAt = LocalDateTime.now();
         NotificationPreferencesDocument doc = NotificationPreferencesDocument.builder()
-                .id("pref-002")
-                .userId("user-456")
+                .id(PREF_ID_2.toString())
+                .userId(USER_ID_2.toString())
                 .connectionRequest(false)
                 .parcheMessage(true)
                 .eventReminder(false)
@@ -67,8 +73,8 @@ class NotificationPreferencesPersistenceMapperTest {
 
         NotificationPreferences preferences = mapper.toDomain(doc);
 
-        assertThat(preferences.getId()).isEqualTo("pref-002");
-        assertThat(preferences.getUserId()).isEqualTo("user-456");
+        assertThat(preferences.getId()).isEqualTo(PREF_ID_2);
+        assertThat(preferences.getUserId()).isEqualTo(USER_ID_2);
         assertThat(preferences.isConnectionRequest()).isFalse();
         assertThat(preferences.isParcheMessage()).isTrue();
         assertThat(preferences.isEventReminder()).isFalse();

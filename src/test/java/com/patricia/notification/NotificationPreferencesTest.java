@@ -5,6 +5,7 @@ import com.patricia.notification.domain.model.enums.NotificationType;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,7 +14,7 @@ class NotificationPreferencesTest {
     @Test
     void isEnabled_shouldReturnCorrectFlags() {
         NotificationPreferences prefs = NotificationPreferences.builder()
-                .userId("u1")
+                .userId(UUID.fromString("00000000-0000-0000-0000-000000000001"))
                 .connectionRequest(true)
                 .parcheMessage(false)
                 .eventReminder(true)
@@ -37,7 +38,7 @@ class NotificationPreferencesTest {
     @Test
     void update_shouldToggleFlagAndSetUpdatedAt() {
         NotificationPreferences prefs = NotificationPreferences.builder()
-                .userId("u2")
+                .userId(UUID.fromString("00000000-0000-0000-0000-000000000002"))
                 .connectionRequest(true)
                 .parcheMessage(false)
                 .build();
@@ -60,7 +61,7 @@ class NotificationPreferencesTest {
     @Test
     void update_shouldUpdateAllNotificationTypes() {
         NotificationPreferences prefs = NotificationPreferences.builder()
-                .userId("u3")
+                .userId(UUID.fromString("00000000-0000-0000-0000-000000000003"))
                 .connectionRequest(false)
                 .parcheMessage(false)
                 .eventReminder(false)

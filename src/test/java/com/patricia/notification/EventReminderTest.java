@@ -4,17 +4,21 @@ import com.patricia.notification.domain.model.EventReminder;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class EventReminderTest {
 
+    private static final UUID USER_ID  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID EVENT_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Test
     void markReminded24h_shouldSetFlagTrue() {
         EventReminder reminder = EventReminder.builder()
                 .id("r1")
-                .userId("u1")
-                .eventId("e1")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusDays(1))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -29,8 +33,8 @@ class EventReminderTest {
     void markReminded1h_shouldSetFlagTrue() {
         EventReminder reminder = EventReminder.builder()
                 .id("r2")
-                .userId("u2")
-                .eventId("e2")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusHours(1))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -45,8 +49,8 @@ class EventReminderTest {
     void needs24hReminder_shouldReturnFalse_whenAlreadyReminded() {
         EventReminder reminder = EventReminder.builder()
                 .id("r3")
-                .userId("u3")
-                .eventId("e3")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusHours(24))
                 .reminded24h(true)
                 .reminded1h(false)
@@ -59,8 +63,8 @@ class EventReminderTest {
     void needs1hReminder_shouldReturnFalse_whenAlreadyReminded() {
         EventReminder reminder = EventReminder.builder()
                 .id("r4")
-                .userId("u4")
-                .eventId("e4")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusHours(1))
                 .reminded24h(false)
                 .reminded1h(true)
@@ -71,11 +75,10 @@ class EventReminderTest {
 
     @Test
     void needs24hReminder_shouldReturnFalse_whenEventIsNotInWindow() {
-        // Evento en 10 horas (fuera de la ventana de 24 horas ± 30 minutos)
         EventReminder reminder = EventReminder.builder()
                 .id("r5")
-                .userId("u5")
-                .eventId("e5")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusHours(10))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -86,11 +89,10 @@ class EventReminderTest {
 
     @Test
     void needs1hReminder_shouldReturnFalse_whenEventIsNotInWindow() {
-        // Evento en 3 horas (fuera de la ventana de 1 hora ± 30 minutos)
         EventReminder reminder = EventReminder.builder()
                 .id("r6")
-                .userId("u6")
-                .eventId("e6")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusHours(3))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -101,11 +103,10 @@ class EventReminderTest {
 
     @Test
     void needs24hReminder_shouldReturnTrue_whenEventIsExactlyIn24hWindow() {
-        // Evento exactamente a 24 horas (dentro de la ventana ± 30 minutos)
         EventReminder reminder = EventReminder.builder()
                 .id("r7")
-                .userId("u7")
-                .eventId("e7")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusMinutes(1440))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -116,11 +117,10 @@ class EventReminderTest {
 
     @Test
     void needs1hReminder_shouldReturnTrue_whenEventIsExactlyIn1hWindow() {
-        // Evento exactamente a 1 hora (dentro de la ventana ± 30 minutos)
         EventReminder reminder = EventReminder.builder()
                 .id("r8")
-                .userId("u8")
-                .eventId("e8")
+                .userId(USER_ID)
+                .eventId(EVENT_ID)
                 .eventDate(LocalDateTime.now().plusMinutes(60))
                 .reminded24h(true)
                 .reminded1h(false)
@@ -129,4 +129,3 @@ class EventReminderTest {
         assertThat(reminder.needs1hReminder()).isTrue();
     }
 }
-

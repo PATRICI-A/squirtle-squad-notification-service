@@ -13,10 +13,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NotificationMapperTest {
+
+    private static final UUID NOTIF_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID USER_ID    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID REF_ID     = UUID.fromString("00000000-0000-0000-0000-000000000020");
 
     private NotificationMapper mapper;
 
@@ -25,37 +31,32 @@ class NotificationMapperTest {
         mapper = new NotificationMapper();
     }
 
-
-
     @Test
     @DisplayName("toResponse: debe mapear todos los campos de Notification a NotificationResponse")
     void toResponse_shouldMapAllFields() {
-        // Arrange
         LocalDateTime now = LocalDateTime.now();
         Notification notification = Notification.builder()
-                .id("notif-001")
-                .userId("user-123")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Nuevo mensaje")
                 .body("Juan te escribió")
                 .read(false)
-                .referenceId("parche-456")
+                .referenceId(REF_ID)
                 .createdAt(now)
                 .build();
 
-        // Act
         NotificationResponse response = mapper.toResponse(notification);
 
-        // Assert
-        assertThat(response.getId()).isEqualTo("notif-001");
-        assertThat(response.getUserId()).isEqualTo("user-123");
+        assertThat(response.getId()).isEqualTo(NOTIF_ID_1);
+        assertThat(response.getUserId()).isEqualTo(USER_ID);
         assertThat(response.getType()).isEqualTo(NotificationType.PARCHE_MESSAGE);
         assertThat(response.getChannel()).isEqualTo(NotificationChannel.IN_APP);
         assertThat(response.getTitle()).isEqualTo("Nuevo mensaje");
         assertThat(response.getBody()).isEqualTo("Juan te escribió");
         assertThat(response.isRead()).isFalse();
-        assertThat(response.getReferenceId()).isEqualTo("parche-456");
+        assertThat(response.getReferenceId()).isEqualTo(REF_ID);
         assertThat(response.getCreatedAt()).isEqualTo(now);
     }
 
@@ -63,8 +64,8 @@ class NotificationMapperTest {
     @DisplayName("toResponse: debe mapear read=true correctamente")
     void toResponse_shouldMapReadTrue() {
         Notification notification = Notification.builder()
-                .id("notif-002")
-                .userId("user-123")
+                .id(NOTIF_ID_2)
+                .userId(USER_ID)
                 .type(NotificationType.CONNECTION_REQUEST)
                 .channel(NotificationChannel.IN_APP)
                 .title("Conexión")
@@ -77,13 +78,11 @@ class NotificationMapperTest {
         assertThat(response.isRead()).isTrue();
     }
 
-
-
     @Test
     @DisplayName("toPreferencesResponse: debe mapear todas las preferencias")
     void toPreferencesResponse_shouldMapAllFields() {
         NotificationPreferences preferences = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .parcheMessage(false)
                 .eventReminder(true)
@@ -101,8 +100,6 @@ class NotificationMapperTest {
         assertThat(response.isAchievementUnlocked()).isTrue();
         assertThat(response.isParcheInvitation()).isFalse();
     }
-
-
 
     @Test
     @DisplayName("toUnreadCountResponse: debe mapear el conteo correctamente")

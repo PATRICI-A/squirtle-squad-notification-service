@@ -9,35 +9,44 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NotificationDTOsTest {
+
+    private static final UUID NOTIF_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID NOTIF_ID_3 = UUID.fromString("00000000-0000-0000-0000-000000000012");
+    private static final UUID NOTIF_ID_4 = UUID.fromString("00000000-0000-0000-0000-000000000013");
+    private static final UUID USER_ID    = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID REF_ID     = UUID.fromString("00000000-0000-0000-0000-000000000020");
 
     @Test
     @DisplayName("NotificationResponse debe mapear todos los campos")
     void notificationResponse_shouldMapAllFields() {
         LocalDateTime now = LocalDateTime.now();
         NotificationResponse response = NotificationResponse.builder()
-                .id("n1")
-                .userId("user-123")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID)
                 .type(NotificationType.EVENT_REMINDER)
                 .channel(NotificationChannel.IN_APP)
                 .title("Recordatorio")
                 .body("Tu evento es mañana")
                 .read(false)
-                .referenceId("evt-999")
+                .referenceId(REF_ID)
                 .createdAt(now)
                 .build();
 
-        assertThat(response.getId()).isEqualTo("n1");
-        assertThat(response.getUserId()).isEqualTo("user-123");
+        assertThat(response.getId()).isEqualTo(NOTIF_ID_1);
+        assertThat(response.getUserId()).isEqualTo(USER_ID);
         assertThat(response.getType()).isEqualTo(NotificationType.EVENT_REMINDER);
         assertThat(response.getChannel()).isEqualTo(NotificationChannel.IN_APP);
         assertThat(response.getTitle()).isEqualTo("Recordatorio");
         assertThat(response.getBody()).isEqualTo("Tu evento es mañana");
         assertThat(response.isRead()).isFalse();
-        assertThat(response.getReferenceId()).isEqualTo("evt-999");
+        assertThat(response.getReferenceId()).isEqualTo(REF_ID);
         assertThat(response.getCreatedAt()).isEqualTo(now);
     }
 
@@ -75,8 +84,8 @@ class NotificationDTOsTest {
     @DisplayName("NotificationResponse con read=true")
     void notificationResponse_readTrue_shouldWork() {
         NotificationResponse response = NotificationResponse.builder()
-                .id("n2")
-                .userId("u2")
+                .id(NOTIF_ID_2)
+                .userId(USER_ID_2)
                 .type(NotificationType.ACHIEVEMENT_UNLOCKED)
                 .channel(NotificationChannel.IN_APP)
                 .title("Logro")
@@ -91,13 +100,13 @@ class NotificationDTOsTest {
     @DisplayName("NotificationResponse diferentes tipos")
     void notificationResponse_differentTypes_shouldWork() {
         NotificationResponse response1 = NotificationResponse.builder()
-                .id("n3")
+                .id(NOTIF_ID_3)
                 .type(NotificationType.CONNECTION_REQUEST)
                 .channel(NotificationChannel.IN_APP)
                 .build();
 
         NotificationResponse response2 = NotificationResponse.builder()
-                .id("n4")
+                .id(NOTIF_ID_4)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.EMAIL)
                 .build();
@@ -107,4 +116,3 @@ class NotificationDTOsTest {
         assertThat(response2.getChannel()).isEqualTo(NotificationChannel.EMAIL);
     }
 }
-

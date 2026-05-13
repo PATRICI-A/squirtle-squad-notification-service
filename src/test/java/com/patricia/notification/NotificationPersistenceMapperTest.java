@@ -10,10 +10,20 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NotificationPersistenceMapperTest {
+
+    private static final UUID NOTIF_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID NOTIF_ID_3 = UUID.fromString("00000000-0000-0000-0000-000000000012");
+    private static final UUID USER_ID_1  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID USER_ID_3  = UUID.fromString("00000000-0000-0000-0000-000000000003");
+    private static final UUID REF_ID_1   = UUID.fromString("00000000-0000-0000-0000-000000000020");
+    private static final UUID REF_ID_2   = UUID.fromString("00000000-0000-0000-0000-000000000021");
 
     private NotificationPersistenceMapper mapper;
 
@@ -27,27 +37,27 @@ class NotificationPersistenceMapperTest {
     void toDocument_shouldMapAllFields() {
         LocalDateTime now = LocalDateTime.now();
         Notification notification = Notification.builder()
-                .id("notif-001")
-                .userId("user-123")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID_1)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Nuevo mensaje")
                 .body("Cuerpo del mensaje")
                 .read(false)
-                .referenceId("ref-456")
+                .referenceId(REF_ID_1)
                 .createdAt(now)
                 .build();
 
         NotificationDocument doc = mapper.toDocument(notification);
 
-        assertThat(doc.getId()).isEqualTo("notif-001");
-        assertThat(doc.getUserId()).isEqualTo("user-123");
+        assertThat(doc.getId()).isEqualTo(NOTIF_ID_1.toString());
+        assertThat(doc.getUserId()).isEqualTo(USER_ID_1.toString());
         assertThat(doc.getType()).isEqualTo("PARCHE_MESSAGE");
         assertThat(doc.getChannel()).isEqualTo("IN_APP");
         assertThat(doc.getTitle()).isEqualTo("Nuevo mensaje");
         assertThat(doc.getBody()).isEqualTo("Cuerpo del mensaje");
         assertThat(doc.isRead()).isFalse();
-        assertThat(doc.getReferenceId()).isEqualTo("ref-456");
+        assertThat(doc.getReferenceId()).isEqualTo(REF_ID_1.toString());
         assertThat(doc.getCreatedAt()).isEqualTo(now);
     }
 
@@ -56,27 +66,27 @@ class NotificationPersistenceMapperTest {
     void toDomain_shouldMapAllFields() {
         LocalDateTime now = LocalDateTime.now();
         NotificationDocument doc = NotificationDocument.builder()
-                .id("notif-002")
-                .userId("user-456")
+                .id(NOTIF_ID_2.toString())
+                .userId(USER_ID_2.toString())
                 .type("CONNECTION_REQUEST")
                 .channel("EMAIL")
                 .title("Solicitud")
                 .body("Cuerpo")
                 .read(true)
-                .referenceId("ref-789")
+                .referenceId(REF_ID_2.toString())
                 .createdAt(now)
                 .build();
 
         Notification notification = mapper.toDomain(doc);
 
-        assertThat(notification.getId()).isEqualTo("notif-002");
-        assertThat(notification.getUserId()).isEqualTo("user-456");
+        assertThat(notification.getId()).isEqualTo(NOTIF_ID_2);
+        assertThat(notification.getUserId()).isEqualTo(USER_ID_2);
         assertThat(notification.getType()).isEqualTo(NotificationType.CONNECTION_REQUEST);
         assertThat(notification.getChannel()).isEqualTo(NotificationChannel.EMAIL);
         assertThat(notification.getTitle()).isEqualTo("Solicitud");
         assertThat(notification.getBody()).isEqualTo("Cuerpo");
         assertThat(notification.isRead()).isTrue();
-        assertThat(notification.getReferenceId()).isEqualTo("ref-789");
+        assertThat(notification.getReferenceId()).isEqualTo(REF_ID_2);
         assertThat(notification.getCreatedAt()).isEqualTo(now);
     }
 
@@ -84,8 +94,8 @@ class NotificationPersistenceMapperTest {
     @DisplayName("toDomain debe manejar read=false correctamente")
     void toDomain_shouldHandleReadFalse() {
         NotificationDocument doc = NotificationDocument.builder()
-                .id("notif-003")
-                .userId("user-789")
+                .id(NOTIF_ID_3.toString())
+                .userId(USER_ID_3.toString())
                 .type("EVENT_REMINDER")
                 .channel("IN_APP")
                 .title("Recordatorio")

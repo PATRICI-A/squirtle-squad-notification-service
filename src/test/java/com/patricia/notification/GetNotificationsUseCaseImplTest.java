@@ -14,6 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -21,6 +22,11 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetNotificationsUseCaseImplTest {
+
+    private static final UUID USER_ID   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID NOTIF_1   = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_2   = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
     @Mock
     private NotificationRepository notificationRepository;
@@ -33,8 +39,8 @@ class GetNotificationsUseCaseImplTest {
     void execute_shouldReturnPagedNotifications() {
         List<Notification> expected = List.of(
                 Notification.builder()
-                        .id("n1")
-                        .userId("user-123")
+                        .id(NOTIF_1)
+                        .userId(USER_ID)
                         .type(NotificationType.PARCHE_MESSAGE)
                         .channel(NotificationChannel.IN_APP)
                         .title("Mensaje 1")
@@ -43,8 +49,8 @@ class GetNotificationsUseCaseImplTest {
                         .createdAt(LocalDateTime.now())
                         .build(),
                 Notification.builder()
-                        .id("n2")
-                        .userId("user-123")
+                        .id(NOTIF_2)
+                        .userId(USER_ID)
                         .type(NotificationType.CONNECTION_REQUEST)
                         .channel(NotificationChannel.IN_APP)
                         .title("Conexión")
@@ -54,23 +60,21 @@ class GetNotificationsUseCaseImplTest {
                         .build()
         );
 
-        when(notificationRepository.findByUserIdPaged("user-123", 0, 20))
-                .thenReturn(expected);
+        when(notificationRepository.findByUserIdPaged(USER_ID, 0, 20)).thenReturn(expected);
 
-        List<Notification> result = useCase.execute("user-123", 0, 20);
+        List<Notification> result = useCase.execute(USER_ID, 0, 20);
 
         assertThat(result).hasSize(2);
         assertThat(result).isEqualTo(expected);
-        verify(notificationRepository).findByUserIdPaged("user-123", 0, 20);
+        verify(notificationRepository).findByUserIdPaged(USER_ID, 0, 20);
     }
 
     @Test
     @DisplayName("Debe retornar lista vacía si el usuario no tiene notificaciones")
     void execute_shouldReturnEmptyList_whenNoNotifications() {
-        when(notificationRepository.findByUserIdPaged("user-sin-notifs", 0, 20))
-                .thenReturn(List.of());
+        when(notificationRepository.findByUserIdPaged(USER_ID_2, 0, 20)).thenReturn(List.of());
 
-        List<Notification> result = useCase.execute("user-sin-notifs", 0, 20);
+        List<Notification> result = useCase.execute(USER_ID_2, 0, 20);
 
         assertThat(result).isEmpty();
     }
