@@ -42,6 +42,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
           MONGODB_URI: ${{ secrets.MONGODB_URI_TEST }}
           MONGODB_DATABASE: notification_db
           RABBITMQ_HOST: localhost
@@ -55,7 +57,7 @@ jobs:
         run: |
           mvn clean verify sonar:sonar -B \
             -Dsonar.projectKey=cove1946_notification \
-            -Dsonar.organization=cove1946 \
-            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.organization=${SONAR_ORGANIZATION} \
+            -Dsonar.host.url=${SONAR_HOST_URL} \
             -Dsonar.token=${SONAR_TOKEN} \
             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
