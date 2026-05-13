@@ -3,7 +3,8 @@ package com.patricia.notification.domain.ports.in;
 import com.patricia.notification.domain.model.EventReminder;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public interface CreateEventReminderUseCase {
-    EventReminder execute(String userId, String eventId, LocalDateTime eventDate);
+    EventReminder execute(UUID userId, UUID eventId, LocalDateTime eventDate);
 }

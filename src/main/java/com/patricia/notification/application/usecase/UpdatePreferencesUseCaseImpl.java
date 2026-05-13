@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -16,7 +17,7 @@ public class UpdatePreferencesUseCaseImpl implements UpdatePreferencesUseCase {
     private final PreferencesRepository preferencesRepository;
 
     @Override
-    public NotificationPreferences execute(String userId,
+    public NotificationPreferences execute(UUID userId,
                                            NotificationType type, boolean enabled) {
 
         NotificationPreferences preferences = preferencesRepository
@@ -29,6 +30,11 @@ public class UpdatePreferencesUseCaseImpl implements UpdatePreferencesUseCase {
                         .nearbyParche(false)
                         .achievementUnlocked(true)
                         .parcheInvitation(true)
+                        .otpVerification(true)
+                        .passwordReset(true)
+                        .invitationAccepted(true)
+                        .invitationSent(true)
+                        .memberJoined(true)
                         .updatedAt(LocalDateTime.now())
                         .build());
 

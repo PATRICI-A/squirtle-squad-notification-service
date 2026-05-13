@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Tag(name = "Notificaciones", description = "Gestión de notificaciones in-app del usuario")
@@ -81,7 +82,7 @@ public class NotificationController {
             @Parameter(description = "Tamaño de página", example = "20") @RequestParam(defaultValue = "20") int size) {
 
         List<NotificationResponse> response = getNotificationsUseCase
-                .execute(userId, page, size)
+                .execute(UUID.fromString(userId), page, size)
                 .stream()
                 .map(mapper::toResponse)
                 .collect(Collectors.toList());
@@ -95,7 +96,7 @@ public class NotificationController {
     public ResponseEntity<UnreadNotificationCountResponse> getUnreadCount(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
 
-        int count = getUnreadCountUseCase.execute(userId);
+        int count = getUnreadCountUseCase.execute(UUID.fromString(userId));
         return ResponseEntity.ok(mapper.toUnreadCountResponse(count));
     }
 
@@ -106,10 +107,10 @@ public class NotificationController {
     })
     @PutMapping("/{notificationId}/read")
     public ResponseEntity<Void> markSingleAsRead(
-            @Parameter(description = "ID de la notificación", example = "6650a1f3e4b0c12d3a4f5678") @PathVariable String notificationId,
+            @Parameter(description = "ID de la notificación", example = "550e8400-e29b-41d4-a716-446655440000") @PathVariable String notificationId,
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
 
-        markAsReadUseCase.executeSingle(notificationId, userId);
+        markAsReadUseCase.executeSingle(UUID.fromString(notificationId), UUID.fromString(userId));
         return ResponseEntity.noContent().build();
     }
 
@@ -119,7 +120,7 @@ public class NotificationController {
     public ResponseEntity<Void> markAllAsRead(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
 
-        markAsReadUseCase.executeAll(userId);
+        markAsReadUseCase.executeAll(UUID.fromString(userId));
         return ResponseEntity.noContent().build();
     }
 
@@ -131,7 +132,7 @@ public class NotificationController {
 
         return ResponseEntity.ok(
                 mapper.toPreferencesResponse(
-                        getPreferencesUseCase.execute(userId)));
+                        getPreferencesUseCase.execute(UUID.fromString(userId))));
     }
 
     @Operation(summary = "Actualizar preferencia", description = "Habilita o deshabilita un tipo de notificación específico para el usuario")
@@ -147,7 +148,7 @@ public class NotificationController {
         return ResponseEntity.ok(
                 mapper.toPreferencesResponse(
                         updatePreferencesUseCase.execute(
-                                userId,
+                                UUID.fromString(userId),
                                 request.getType(),
                                 request.getEnabled())));
     }

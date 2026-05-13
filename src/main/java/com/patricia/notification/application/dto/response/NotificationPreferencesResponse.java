@@ -20,4 +20,14 @@ public class NotificationPreferencesResponse {
     private boolean achievementUnlocked;
     @Schema(description = "Notificaciones de invitaciones a parches", example = "true")
     private boolean parcheInvitation;
+    @Schema(description = "Notificaciones de verificación OTP", example = "true")
+    private boolean otpVerification;
+    @Schema(description = "Notificaciones de restablecimiento de contraseña", example = "true")
+    private boolean passwordReset;
+    @Schema(description = "Notificaciones de invitación aceptada", example = "true")
+    private boolean invitationAccepted;
+    @Schema(description = "Notificaciones de invitación enviada", example = "true")
+    private boolean invitationSent;
+    @Schema(description = "Notificaciones de nuevo miembro en parche", example = "true")
+    private boolean memberJoined;
 }

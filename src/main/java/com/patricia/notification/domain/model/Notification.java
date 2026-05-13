@@ -6,19 +6,21 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Builder
 public class Notification {
 
-    private String id;
-    private String userId;
+    private UUID id;
+    private UUID userId;
+    private String recipientEmail;
     private NotificationType type;
     private NotificationChannel channel;
     private String title;
     private String body;
     private boolean read;
-    private String referenceId;
+    private UUID referenceId;
     private LocalDateTime createdAt;
 
     public void markAsRead() {

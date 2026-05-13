@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class CreateEventReminderUseCaseImpl implements CreateEventReminderUseCas
     private final EventReminderRepository eventReminderRepository;
 
     @Override
-    public EventReminder execute(String userId, String eventId, LocalDateTime eventDate) {
+    public EventReminder execute(UUID userId, UUID eventId, LocalDateTime eventDate) {
         EventReminder reminder = EventReminder.builder()
                 .userId(userId)
                 .eventId(eventId)

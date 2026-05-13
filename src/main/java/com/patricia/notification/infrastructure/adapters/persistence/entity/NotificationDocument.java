@@ -19,6 +19,7 @@ public class NotificationDocument {
     @Id
     private String id;
     private String userId;
+    private String recipientEmail;
     private String type;
     private String channel;
     private String title;
@@ -27,3 +28,4 @@ public class NotificationDocument {
     private String referenceId;
     private LocalDateTime createdAt;
 }
+

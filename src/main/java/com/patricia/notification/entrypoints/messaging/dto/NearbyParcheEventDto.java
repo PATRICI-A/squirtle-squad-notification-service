@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NearbyParcheEventDto {
-    private String targetUserId;
-    private String parcheId;
+    private UUID targetUserId;
+    private UUID parcheId;
     private String parcheName;
     private Double distanceKm;
 }

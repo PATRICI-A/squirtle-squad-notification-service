@@ -20,15 +20,15 @@ public class EmailNotificationAdapter implements NotificationDeliveryPort {
     public void deliver(Notification notification) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(notification.getUserId());
+            message.setTo(notification.getRecipientEmail());
             message.setSubject(notification.getTitle());
             message.setText(notification.getBody());
 
             mailSender.send(message);
-            log.info("Notificación entregada via email a {}", notification.getUserId());
+            log.info("Notificación entregada via email a {}", notification.getRecipientEmail());
         } catch (Exception e) {
             log.error("Error enviando email a {}: {}",
-                    notification.getUserId(), e.getMessage());
+                    notification.getRecipientEmail(), e.getMessage());
         }
     }
 

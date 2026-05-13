@@ -33,6 +33,11 @@ public class NotificationMapper {
                 .nearbyParche(preferences.isNearbyParche())
                 .achievementUnlocked(preferences.isAchievementUnlocked())
                 .parcheInvitation(preferences.isParcheInvitation())
+                .otpVerification(preferences.isOtpVerification())
+                .passwordReset(preferences.isPasswordReset())
+                .invitationAccepted(preferences.isInvitationAccepted())
+                .invitationSent(preferences.isInvitationSent())
+                .memberJoined(preferences.isMemberJoined())
                 .build();
     }
 

@@ -6,13 +6,15 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.util.UUID;
+
 @Schema(description = "Request para crear una notificación")
 @Getter
 public class SendNotificationRequest {
 
-    @Schema(description = "ID del usuario destinatario", example = "user-test-001", requiredMode = Schema.RequiredMode.REQUIRED)
-    @NotBlank
-    private String userId;
+    @Schema(description = "ID del usuario destinatario", example = "550e8400-e29b-41d4-a716-446655440000", requiredMode = Schema.RequiredMode.REQUIRED)
+    @NotNull
+    private UUID userId;
 
     @Schema(description = "Tipo de notificación", example = "PARCHE_MESSAGE", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
@@ -26,6 +28,6 @@ public class SendNotificationRequest {
     @NotBlank
     private String body;
 
-    @Schema(description = "ID del objeto relacionado (parche, evento, etc.)", example = "parche-abc-456")
-    private String referenceId;
+    @Schema(description = "ID del objeto relacionado (parche, evento, etc.)", example = "550e8400-e29b-41d4-a716-446655440001")
+    private UUID referenceId;
 }
