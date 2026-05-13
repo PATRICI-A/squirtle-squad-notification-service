@@ -23,6 +23,9 @@ class NotificationPreferencesTest {
                 .parcheInvitation(false)
                 .otpVerification(true)
                 .passwordReset(false)
+                .invitationAccepted(true)
+                .invitationSent(false)
+                .memberJoined(true)
                 .build();
 
         assertThat(prefs.isEnabled(NotificationType.CONNECTION_REQUEST)).isTrue();
@@ -33,6 +36,9 @@ class NotificationPreferencesTest {
         assertThat(prefs.isEnabled(NotificationType.PARCHE_INVITATION)).isFalse();
         assertThat(prefs.isEnabled(NotificationType.OTP_VERIFICATION)).isTrue();
         assertThat(prefs.isEnabled(NotificationType.PASSWORD_RESET)).isFalse();
+        assertThat(prefs.isEnabled(NotificationType.INVITATION_ACCEPTED)).isTrue();
+        assertThat(prefs.isEnabled(NotificationType.INVITATION_SENT)).isFalse();
+        assertThat(prefs.isEnabled(NotificationType.MEMBER_JOINED)).isTrue();
     }
 
     @Test
@@ -92,6 +98,15 @@ class NotificationPreferencesTest {
 
         prefs.update(NotificationType.PASSWORD_RESET, true);
         assertThat(prefs.isEnabled(NotificationType.PASSWORD_RESET)).isTrue();
+
+        prefs.update(NotificationType.INVITATION_ACCEPTED, true);
+        assertThat(prefs.isEnabled(NotificationType.INVITATION_ACCEPTED)).isTrue();
+
+        prefs.update(NotificationType.INVITATION_SENT, true);
+        assertThat(prefs.isEnabled(NotificationType.INVITATION_SENT)).isTrue();
+
+        prefs.update(NotificationType.MEMBER_JOINED, true);
+        assertThat(prefs.isEnabled(NotificationType.MEMBER_JOINED)).isTrue();
     }
 }
 
