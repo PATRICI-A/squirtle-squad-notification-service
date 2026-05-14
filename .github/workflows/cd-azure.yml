@@ -29,20 +29,26 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Grant execute permission to Maven Wrapper
+        run: chmod +x mvnw
+
       - name: Build application
         env:
           SPRING_PROFILES_ACTIVE: prod
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          MONGODB_DATABASE: notification_db
-          RABBITMQ_HOST: ${{ secrets.RABBITMQ_HOST }}
-          RABBITMQ_PORT: 5671
+          MONGODB_URI:       ${{ secrets.MONGODB_URI }}
+          MONGODB_DATABASE:  notification_db
+          RABBITMQ_HOST:     ${{ secrets.RABBITMQ_HOST }}
+          RABBITMQ_PORT:     5671
           RABBITMQ_USERNAME: ${{ secrets.RABBITMQ_USERNAME }}
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
-          RABBITMQ_VHOST: ${{ secrets.RABBITMQ_VHOST }}
-          RABBITMQ_SSL: true
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-        run: mvn clean package -DskipTests -B
+          RABBITMQ_VHOST:    ${{ secrets.RABBITMQ_VHOST }}
+          RABBITMQ_SSL:      true
+          MAIL_USERNAME:     ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD:     ${{ secrets.MAIL_PASSWORD }}
+        run: ./mvnw clean package -DskipTests -B
+
+      - name: List generated JAR
+        run: ls -la target/*.jar
 
       - name: Azure Login
         uses: azure/login@v2
