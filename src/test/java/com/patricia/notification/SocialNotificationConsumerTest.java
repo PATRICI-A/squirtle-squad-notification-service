@@ -11,11 +11,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SocialNotificationConsumerTest {
+
+    private static final UUID TARGET_USER_ID  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID REQUESTER_ID    = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Mock
     private SendNotificationUseCase sendNotificationUseCase;
@@ -27,19 +32,19 @@ class SocialNotificationConsumerTest {
     @DisplayName("handleConnectionRequest debe enviar notificación de solicitud de conexión")
     void handleConnectionRequest_shouldSendConnectionNotification() {
         ConnectionRequestEventDto event = ConnectionRequestEventDto.builder()
-                .targetUserId("user-target")
+                .targetUserId(TARGET_USER_ID)
                 .requesterUserName("Maria")
-                .requesterId("user-requester-001")
+                .requesterId(REQUESTER_ID)
                 .build();
 
         consumer.handleConnectionRequest(event);
 
         verify(sendNotificationUseCase).execute(
-                eq("user-target"),
+                eq(TARGET_USER_ID),
                 eq(NotificationType.CONNECTION_REQUEST),
                 eq("Nueva solicitud de conexión"),
                 contains("Maria"),
-                eq("user-requester-001")
+                eq(REQUESTER_ID)
         );
     }
 }

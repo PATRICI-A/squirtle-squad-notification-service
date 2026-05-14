@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -28,6 +29,13 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class SendNotificationUseCaseImplTest {
+
+    private static final UUID USER_ID     = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_NEW = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID NOTIF_ID_1  = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID NOTIF_ID_3  = UUID.fromString("00000000-0000-0000-0000-000000000012");
+    private static final UUID REF_ID      = UUID.fromString("00000000-0000-0000-0000-000000000020");
 
     @Mock
     private NotificationRepository notificationRepository;
@@ -44,14 +52,12 @@ class SendNotificationUseCaseImplTest {
 
     @BeforeEach
     void setUp() {
-        // Configurar el mock con lenient() para evitar errores de UnnecessaryStubbingException
         lenient().when(notificationDeliveryPort.supportedChannel()).thenReturn(NotificationChannel.IN_APP);
-        
-        // Instanciamos el use case manualmente y pasamos la lista con el mock del delivery port.
+
         useCase = new SendNotificationUseCaseImpl(notificationRepository, preferencesRepository, List.of(notificationDeliveryPort));
 
         preferencesAllEnabled = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .parcheMessage(true)
                 .eventReminder(true)
@@ -65,8 +71,8 @@ class SendNotificationUseCaseImplTest {
     @DisplayName("Debe crear, persistir y entregar la notificación correctamente")
     void execute_shouldSaveAndDeliverNotification() {
         Notification saved = Notification.builder()
-                .id("notif-001")
-                .userId("user-123")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Nuevo mensaje")
@@ -74,16 +80,16 @@ class SendNotificationUseCaseImplTest {
                 .read(false)
                 .build();
 
-        when(preferencesRepository.findByUserId("user-123"))
+        when(preferencesRepository.findByUserId(USER_ID))
                 .thenReturn(Optional.of(preferencesAllEnabled));
         when(notificationRepository.save(any())).thenReturn(saved);
 
         Notification result = useCase.execute(
-                "user-123", NotificationType.PARCHE_MESSAGE,
+                USER_ID, NotificationType.PARCHE_MESSAGE,
                 "Nuevo mensaje", "Juan te escribió", null);
 
-        assertThat(result.getId()).isEqualTo("notif-001");
-        assertThat(result.getUserId()).isEqualTo("user-123");
+        assertThat(result.getId()).isEqualTo(NOTIF_ID_1);
+        assertThat(result.getUserId()).isEqualTo(USER_ID);
         assertThat(result.isRead()).isFalse();
 
         verify(notificationRepository).save(any(Notification.class));
@@ -93,12 +99,12 @@ class SendNotificationUseCaseImplTest {
     @Test
     @DisplayName("Si el usuario no tiene preferencias, debe usar las preferencias por defecto")
     void execute_shouldUseDefaultPreferences_whenNotFound() {
-        when(preferencesRepository.findByUserId("user-nuevo"))
+        when(preferencesRepository.findByUserId(USER_ID_NEW))
                 .thenReturn(Optional.empty());
 
         Notification saved = Notification.builder()
-                .id("notif-002")
-                .userId("user-nuevo")
+                .id(NOTIF_ID_2)
+                .userId(USER_ID_NEW)
                 .type(NotificationType.CONNECTION_REQUEST)
                 .channel(NotificationChannel.IN_APP)
                 .title("Nueva conexión")
@@ -109,7 +115,7 @@ class SendNotificationUseCaseImplTest {
         when(notificationRepository.save(any())).thenReturn(saved);
 
         Notification result = useCase.execute(
-                "user-nuevo", NotificationType.CONNECTION_REQUEST,
+                USER_ID_NEW, NotificationType.CONNECTION_REQUEST,
                 "Nueva conexión", "Alguien quiere conectarse", null);
 
         assertThat(result).isNotNull();
@@ -119,13 +125,13 @@ class SendNotificationUseCaseImplTest {
     @Test
     @DisplayName("Debe guardar la notificación con channel IN_APP siempre")
     void execute_shouldAlwaysUseInAppChannel() {
-        when(preferencesRepository.findByUserId("user-123"))
+        when(preferencesRepository.findByUserId(USER_ID))
                 .thenReturn(Optional.of(preferencesAllEnabled));
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         Notification saved = Notification.builder()
-                .id("notif-003")
-                .userId("user-123")
+                .id(NOTIF_ID_3)
+                .userId(USER_ID)
                 .type(NotificationType.EVENT_REMINDER)
                 .channel(NotificationChannel.IN_APP)
                 .title("Recordatorio")
@@ -135,14 +141,13 @@ class SendNotificationUseCaseImplTest {
 
         when(notificationRepository.save(captor.capture())).thenReturn(saved);
 
-        useCase.execute("user-123", NotificationType.EVENT_REMINDER,
-                "Recordatorio", "Tu evento es mañana", "evento-99");
+        useCase.execute(USER_ID, NotificationType.EVENT_REMINDER,
+                "Recordatorio", "Tu evento es mañana", REF_ID);
 
         Notification persisted = captor.getValue();
         assertThat(persisted.getChannel()).isEqualTo(NotificationChannel.IN_APP);
-        assertThat(persisted.getReferenceId()).isEqualTo("evento-99");
+        assertThat(persisted.getReferenceId()).isEqualTo(REF_ID);
     }
-
 
     @Test
     @DisplayName("Debe lanzar InvalidNotificationException si userId es null")
@@ -155,18 +160,10 @@ class SendNotificationUseCaseImplTest {
     }
 
     @Test
-    @DisplayName("Debe lanzar InvalidNotificationException si userId está en blanco")
-    void execute_shouldThrow_whenUserIdIsBlank() {
-        assertThatThrownBy(() ->
-                useCase.execute("   ", NotificationType.PARCHE_MESSAGE, "título", "cuerpo", null))
-                .isInstanceOf(InvalidNotificationException.class);
-    }
-
-    @Test
     @DisplayName("Debe lanzar InvalidNotificationException si type es null")
     void execute_shouldThrow_whenTypeIsNull() {
         assertThatThrownBy(() ->
-                useCase.execute("user-123", null, "título", "cuerpo", null))
+                useCase.execute(USER_ID, null, "título", "cuerpo", null))
                 .isInstanceOf(InvalidNotificationException.class);
     }
 
@@ -174,16 +171,15 @@ class SendNotificationUseCaseImplTest {
     @DisplayName("Debe lanzar InvalidNotificationException si body está en blanco")
     void execute_shouldThrow_whenBodyIsBlank() {
         assertThatThrownBy(() ->
-                useCase.execute("user-123", NotificationType.PARCHE_MESSAGE, "título", "", null))
+                useCase.execute(USER_ID, NotificationType.PARCHE_MESSAGE, "título", "", null))
                 .isInstanceOf(InvalidNotificationException.class);
     }
-
 
     @Test
     @DisplayName("Debe lanzar NotificationTypeDisabledException si el tipo está deshabilitado")
     void execute_shouldThrow_whenNotificationTypeDisabled() {
         NotificationPreferences prefsNearbyOff = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .parcheMessage(true)
                 .eventReminder(true)
@@ -192,11 +188,11 @@ class SendNotificationUseCaseImplTest {
                 .parcheInvitation(true)
                 .build();
 
-        when(preferencesRepository.findByUserId("user-123"))
+        when(preferencesRepository.findByUserId(USER_ID))
                 .thenReturn(Optional.of(prefsNearbyOff));
 
         assertThatThrownBy(() ->
-                useCase.execute("user-123", NotificationType.NEARBY_PARCHE,
+                useCase.execute(USER_ID, NotificationType.NEARBY_PARCHE,
                         "Parche cerca", "Hay un parche a 500m", null))
                 .isInstanceOf(NotificationTypeDisabledException.class);
 
@@ -206,11 +202,11 @@ class SendNotificationUseCaseImplTest {
     @Test
     @DisplayName("NEARBY_PARCHE está deshabilitado en las preferencias por defecto")
     void execute_shouldThrow_forNearbyParche_withDefaultPreferences() {
-        when(preferencesRepository.findByUserId("user-nuevo"))
+        when(preferencesRepository.findByUserId(USER_ID_NEW))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() ->
-                useCase.execute("user-nuevo", NotificationType.NEARBY_PARCHE,
+                useCase.execute(USER_ID_NEW, NotificationType.NEARBY_PARCHE,
                         "Parche cerca", "Hay un parche a 500m", null))
                 .isInstanceOf(NotificationTypeDisabledException.class);
     }

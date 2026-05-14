@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,13 +23,13 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
 
     private final NotificationRepository notificationRepository;
     private final PreferencesRepository preferencesRepository;
-    private final List<NotificationDeliveryPort> deliveryPorts; // inyecta ambos adapters
+    private final List<NotificationDeliveryPort> deliveryPorts;
 
     @Override
-    public Notification execute(String userId, NotificationType type,
-                                String title, String body, String referenceId) {
+    public Notification execute(UUID userId, NotificationType type,
+                                String title, String body, UUID referenceId) {
 
-        if (userId == null || userId.isBlank()) {
+        if (userId == null) {
             throw new InvalidNotificationException("el campo userId es obligatorio");
         }
         if (type == null) {
@@ -38,10 +39,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
             throw new InvalidNotificationException("el campo body no puede estar vacío");
         }
 
-
-        NotificationChannel channel = userId.contains("@")
-                ? NotificationChannel.EMAIL
-                : NotificationChannel.IN_APP;
+        NotificationChannel channel = NotificationChannel.IN_APP;
 
         NotificationPreferences preferences = preferencesRepository
                 .findByUserId(userId)
@@ -72,7 +70,7 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
         return saved;
     }
 
-    private NotificationPreferences buildDefaultPreferences(String userId) {
+    private NotificationPreferences buildDefaultPreferences(UUID userId) {
         return NotificationPreferences.builder()
                 .userId(userId)
                 .connectionRequest(true)
@@ -83,6 +81,9 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
                 .parcheInvitation(true)
                 .otpVerification(true)
                 .passwordReset(true)
+                .invitationAccepted(true)
+                .invitationSent(true)
+                .memberJoined(true)
                 .build();
     }
 }

@@ -11,12 +11,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class GetPreferencesUseCaseImplTest {
+
+    private static final UUID USER_ID     = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_NEW = UUID.fromString("00000000-0000-0000-0000-000000000002");
 
     @Mock
     private PreferencesRepository preferencesRepository;
@@ -28,7 +32,7 @@ class GetPreferencesUseCaseImplTest {
     @DisplayName("Debe retornar las preferencias del repositorio si existen")
     void execute_shouldReturnPreferencesFromRepository() {
         NotificationPreferences prefs = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .parcheMessage(false)
                 .eventReminder(true)
@@ -37,9 +41,9 @@ class GetPreferencesUseCaseImplTest {
                 .parcheInvitation(true)
                 .build();
 
-        when(preferencesRepository.findByUserId("user-123")).thenReturn(Optional.of(prefs));
+        when(preferencesRepository.findByUserId(USER_ID)).thenReturn(Optional.of(prefs));
 
-        NotificationPreferences result = useCase.execute("user-123");
+        NotificationPreferences result = useCase.execute(USER_ID);
 
         assertThat(result).isEqualTo(prefs);
         assertThat(result.isParcheMessage()).isFalse();
@@ -48,12 +52,12 @@ class GetPreferencesUseCaseImplTest {
     @Test
     @DisplayName("Debe retornar preferencias por defecto si no existen en el repositorio")
     void execute_shouldReturnDefaultPreferences_whenNotFound() {
-        when(preferencesRepository.findByUserId("user-nuevo")).thenReturn(Optional.empty());
+        when(preferencesRepository.findByUserId(USER_ID_NEW)).thenReturn(Optional.empty());
 
-        NotificationPreferences result = useCase.execute("user-nuevo");
+        NotificationPreferences result = useCase.execute(USER_ID_NEW);
 
         assertThat(result).isNotNull();
-        assertThat(result.getUserId()).isEqualTo("user-nuevo");
+        assertThat(result.getUserId()).isEqualTo(USER_ID_NEW);
         assertThat(result.isConnectionRequest()).isTrue();
         assertThat(result.isParcheMessage()).isTrue();
         assertThat(result.isEventReminder()).isTrue();
@@ -62,4 +66,3 @@ class GetPreferencesUseCaseImplTest {
         assertThat(result.isParcheInvitation()).isTrue();
     }
 }
-

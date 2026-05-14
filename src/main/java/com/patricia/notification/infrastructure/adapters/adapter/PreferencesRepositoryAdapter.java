@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class PreferencesRepositoryAdapter implements PreferencesRepository {
     }
 
     @Override
-    public Optional<NotificationPreferences> findByUserId(String userId) {
-        return mongoRepository.findByUserId(userId).map(mapper::toDomain);
+    public Optional<NotificationPreferences> findByUserId(UUID userId) {
+        return mongoRepository.findByUserId(userId.toString()).map(mapper::toDomain);
     }
 }

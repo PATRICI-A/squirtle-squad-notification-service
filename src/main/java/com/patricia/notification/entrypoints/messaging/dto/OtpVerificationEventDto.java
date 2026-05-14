@@ -11,6 +11,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OtpVerificationEventDto {
+    private UUID userId;
     private String email;
     private String otpCode;
 }

@@ -6,13 +6,14 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Builder
 public class NotificationPreferences {
 
-    private String id;
-    private String userId;
+    private UUID id;
+    private UUID userId;
     private boolean connectionRequest;
     private boolean parcheMessage;
     private boolean eventReminder;
@@ -21,6 +22,9 @@ public class NotificationPreferences {
     private boolean parcheInvitation;
     private boolean otpVerification;
     private boolean passwordReset;
+    private boolean invitationAccepted;
+    private boolean invitationSent;
+    private boolean memberJoined;
     private LocalDateTime updatedAt;
 
     public boolean isEnabled(NotificationType type) {
@@ -33,6 +37,9 @@ public class NotificationPreferences {
             case PARCHE_INVITATION -> this.parcheInvitation;
             case OTP_VERIFICATION -> this.otpVerification;
             case PASSWORD_RESET -> this.passwordReset;
+            case INVITATION_ACCEPTED -> this.invitationAccepted;
+            case INVITATION_SENT -> this.invitationSent;
+            case MEMBER_JOINED -> this.memberJoined;
         };
     }
 
@@ -46,6 +53,9 @@ public class NotificationPreferences {
             case PARCHE_INVITATION -> this.parcheInvitation = enabled;
             case OTP_VERIFICATION -> this.otpVerification = enabled;
             case PASSWORD_RESET -> this.passwordReset = enabled;
+            case INVITATION_ACCEPTED -> this.invitationAccepted = enabled;
+            case INVITATION_SENT -> this.invitationSent = enabled;
+            case MEMBER_JOINED -> this.memberJoined = enabled;
         };
         this.updatedAt = LocalDateTime.now();
     }

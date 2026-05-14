@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.*;
@@ -22,6 +23,11 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class WebSocketNotificationAdapterTest {
+
+    private static final UUID USER_ID_1  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID NOTIF_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
     @Mock
     private SimpMessagingTemplate messagingTemplate;
@@ -36,8 +42,8 @@ class WebSocketNotificationAdapterTest {
     @DisplayName("deliver debe enviar notificación al topic del usuario via WebSocket")
     void deliver_shouldSendToUserTopic() {
         Notification notification = Notification.builder()
-                .id("notif-001")
-                .userId("user-123")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID_1)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Mensaje")
@@ -47,8 +53,8 @@ class WebSocketNotificationAdapterTest {
                 .build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id("notif-001")
-                .userId("user-123")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID_1)
                 .type(NotificationType.PARCHE_MESSAGE)
                 .channel(NotificationChannel.IN_APP)
                 .title("Mensaje")
@@ -60,7 +66,7 @@ class WebSocketNotificationAdapterTest {
         adapter.deliver(notification);
 
         verify(messagingTemplate).convertAndSend(
-                eq("/topic/notifications/user-123"),
+                eq("/topic/notifications/" + USER_ID_1),
                 eq(response)
         );
     }
@@ -69,8 +75,8 @@ class WebSocketNotificationAdapterTest {
     @DisplayName("deliver no debe propagar excepción cuando SimpMessagingTemplate falla")
     void deliver_shouldNotPropagateException_whenMessagingTemplateFails() {
         Notification notification = Notification.builder()
-                .id("notif-002")
-                .userId("user-456")
+                .id(NOTIF_ID_2)
+                .userId(USER_ID_2)
                 .type(NotificationType.CONNECTION_REQUEST)
                 .channel(NotificationChannel.IN_APP)
                 .title("Conexión")
@@ -79,14 +85,13 @@ class WebSocketNotificationAdapterTest {
                 .build();
 
         NotificationResponse response = NotificationResponse.builder()
-                .id("notif-002")
+                .id(NOTIF_ID_2)
                 .build();
 
         when(mapper.toResponse(notification)).thenReturn(response);
         doThrow(new RuntimeException("WebSocket error"))
                 .when(messagingTemplate).convertAndSend(anyString(), (Object) any());
 
-        // Should not throw
         adapter.deliver(notification);
 
         verify(messagingTemplate).convertAndSend(anyString(), (Object) any());

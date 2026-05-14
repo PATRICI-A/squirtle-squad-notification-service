@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -20,6 +21,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class PreferencesRepositoryAdapterTest {
+
+    private static final UUID USER_ID     = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_NEW = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID PREF_ID     = UUID.fromString("00000000-0000-0000-0000-000000000010");
 
     @Mock
     private MongoPreferencesRepository mongoRepository;
@@ -34,13 +39,13 @@ class PreferencesRepositoryAdapterTest {
     @DisplayName("save debe convertir a documento, persistir y retornar dominio")
     void save_shouldConvertAndPersistAndReturn() {
         NotificationPreferences preferences = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .parcheMessage(true)
                 .build();
 
         NotificationPreferencesDocument doc = NotificationPreferencesDocument.builder()
-                .userId("user-123")
+                .userId(USER_ID.toString())
                 .connectionRequest(true)
                 .parcheMessage(true)
                 .build();
@@ -59,32 +64,32 @@ class PreferencesRepositoryAdapterTest {
     @DisplayName("findByUserId debe retornar preferencias cuando existen")
     void findByUserId_shouldReturnPreferences_whenFound() {
         NotificationPreferencesDocument doc = NotificationPreferencesDocument.builder()
-                .id("pref-001")
-                .userId("user-123")
+                .id(PREF_ID.toString())
+                .userId(USER_ID.toString())
                 .connectionRequest(true)
                 .build();
 
         NotificationPreferences preferences = NotificationPreferences.builder()
-                .id("pref-001")
-                .userId("user-123")
+                .id(PREF_ID)
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .build();
 
-        when(mongoRepository.findByUserId("user-123")).thenReturn(Optional.of(doc));
+        when(mongoRepository.findByUserId(USER_ID.toString())).thenReturn(Optional.of(doc));
         when(mapper.toDomain(doc)).thenReturn(preferences);
 
-        Optional<NotificationPreferences> result = adapter.findByUserId("user-123");
+        Optional<NotificationPreferences> result = adapter.findByUserId(USER_ID);
 
         assertThat(result).isPresent();
-        assertThat(result.get().getUserId()).isEqualTo("user-123");
+        assertThat(result.get().getUserId()).isEqualTo(USER_ID);
     }
 
     @Test
     @DisplayName("findByUserId debe retornar vacío cuando no existen preferencias")
     void findByUserId_shouldReturnEmpty_whenNotFound() {
-        when(mongoRepository.findByUserId("user-nuevo")).thenReturn(Optional.empty());
+        when(mongoRepository.findByUserId(USER_ID_NEW.toString())).thenReturn(Optional.empty());
 
-        Optional<NotificationPreferences> result = adapter.findByUserId("user-nuevo");
+        Optional<NotificationPreferences> result = adapter.findByUserId(USER_ID_NEW);
 
         assertThat(result).isEmpty();
     }

@@ -27,5 +27,10 @@ public class NotificationPreferencesDocument {
     private boolean nearbyParche;
     private boolean achievementUnlocked;
     private boolean parcheInvitation;
+    private boolean otpVerification;
+    private boolean passwordReset;
+    private boolean invitationAccepted;
+    private boolean invitationSent;
+    private boolean memberJoined;
     private LocalDateTime updatedAt;
 }

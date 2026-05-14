@@ -5,12 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ConnectionRequestEventDto {
-    private String targetUserId;
+    private UUID targetUserId;
     private String requesterUserName;
-    private String requesterId;
+    private UUID requesterId;
 }

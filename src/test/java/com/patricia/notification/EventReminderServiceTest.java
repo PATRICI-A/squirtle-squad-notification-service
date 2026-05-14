@@ -14,12 +14,19 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EventReminderServiceTest {
+
+    private static final UUID USER_A   = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_B   = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID EVENT_A  = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID EVENT_B  = UUID.fromString("00000000-0000-0000-0000-000000000011");
+    private static final UUID EVENT_C  = UUID.fromString("00000000-0000-0000-0000-000000000012");
 
     @Mock
     private EventReminderRepository eventReminderRepository;
@@ -46,8 +53,8 @@ class EventReminderServiceTest {
     void processReminders_shouldSend24hNotification_whenReminderIsIn24hWindow() {
         EventReminder reminder = EventReminder.builder()
                 .id("r1")
-                .userId("user-123")
-                .eventId("event-456")
+                .userId(USER_A)
+                .eventId(EVENT_A)
                 .eventDate(LocalDateTime.now().plusMinutes(1440))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -58,11 +65,11 @@ class EventReminderServiceTest {
         eventReminderService.processReminders();
 
         verify(sendNotificationUseCase).execute(
-                eq("user-123"),
+                eq(USER_A),
                 eq(NotificationType.EVENT_REMINDER),
                 eq("Recordatorio de evento"),
                 eq("Tu evento comienza en 24 horas"),
-                eq("event-456")
+                eq(EVENT_A)
         );
         verify(eventReminderRepository).save(reminder);
     }
@@ -72,8 +79,8 @@ class EventReminderServiceTest {
     void processReminders_shouldSend1hNotification_whenReminderIsIn1hWindow() {
         EventReminder reminder = EventReminder.builder()
                 .id("r2")
-                .userId("user-123")
-                .eventId("event-456")
+                .userId(USER_A)
+                .eventId(EVENT_B)
                 .eventDate(LocalDateTime.now().plusMinutes(60))
                 .reminded24h(true)
                 .reminded1h(false)
@@ -84,11 +91,11 @@ class EventReminderServiceTest {
         eventReminderService.processReminders();
 
         verify(sendNotificationUseCase).execute(
-                eq("user-123"),
+                eq(USER_A),
                 eq(NotificationType.EVENT_REMINDER),
                 eq("Recordatorio de evento"),
                 eq("Tu evento comienza en 1 hora"),
-                eq("event-456")
+                eq(EVENT_B)
         );
         verify(eventReminderRepository).save(reminder);
     }
@@ -98,8 +105,8 @@ class EventReminderServiceTest {
     void processReminders_shouldNotSendNotification_whenReminderIsOutsideAllWindows() {
         EventReminder reminder = EventReminder.builder()
                 .id("r3")
-                .userId("user-123")
-                .eventId("event-789")
+                .userId(USER_A)
+                .eventId(EVENT_C)
                 .eventDate(LocalDateTime.now().plusDays(5))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -118,8 +125,8 @@ class EventReminderServiceTest {
     void processReminders_shouldProcessMultipleRemindersIndependently() {
         EventReminder reminder24h = EventReminder.builder()
                 .id("r4")
-                .userId("user-A")
-                .eventId("event-A")
+                .userId(USER_A)
+                .eventId(EVENT_A)
                 .eventDate(LocalDateTime.now().plusMinutes(1440))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -127,8 +134,8 @@ class EventReminderServiceTest {
 
         EventReminder reminderFar = EventReminder.builder()
                 .id("r5")
-                .userId("user-B")
-                .eventId("event-B")
+                .userId(USER_B)
+                .eventId(EVENT_B)
                 .eventDate(LocalDateTime.now().plusDays(7))
                 .reminded24h(false)
                 .reminded1h(false)
@@ -140,7 +147,7 @@ class EventReminderServiceTest {
         eventReminderService.processReminders();
 
         verify(sendNotificationUseCase, times(1)).execute(
-                eq("user-A"), any(), any(), any(), any());
+                eq(USER_A), any(), any(), any(), any());
         verify(eventReminderRepository, times(1)).save(any());
     }
 }

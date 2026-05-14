@@ -12,11 +12,18 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class ParcheNotificationConsumerTest {
+
+    private static final UUID USER_ID_1  = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_2  = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID PARCHE_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID PARCHE_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000011");
 
     @Mock
     private SendNotificationUseCase sendNotificationUseCase;
@@ -28,20 +35,20 @@ class ParcheNotificationConsumerTest {
     @DisplayName("handleParcheInvitation debe enviar notificación de invitación al parche")
     void handleParcheInvitation_shouldSendInvitationNotification() {
         ParcheInvitationEventDto event = ParcheInvitationEventDto.builder()
-                .targetUserId("user-456")
+                .targetUserId(USER_ID_1)
                 .inviterUserName("Juan")
-                .parcheId("parche-789")
+                .parcheId(PARCHE_ID_1)
                 .parcheName("Parche del viernes")
                 .build();
 
         consumer.handleParcheInvitation(event);
 
         verify(sendNotificationUseCase).execute(
-                eq("user-456"),
+                eq(USER_ID_1),
                 eq(NotificationType.PARCHE_INVITATION),
                 eq("Te invitaron a un parche"),
                 contains("Juan"),
-                eq("parche-789")
+                eq(PARCHE_ID_1)
         );
     }
 
@@ -49,8 +56,8 @@ class ParcheNotificationConsumerTest {
     @DisplayName("handleNearbyParche debe enviar notificación de parche cercano con distancia")
     void handleNearbyParche_shouldSendNearbyNotificationWithDistance() {
         NearbyParcheEventDto event = NearbyParcheEventDto.builder()
-                .targetUserId("user-123")
-                .parcheId("parche-001")
+                .targetUserId(USER_ID_2)
+                .parcheId(PARCHE_ID_2)
                 .parcheName("Parche en la plaza")
                 .distanceKm(0.5)
                 .build();
@@ -58,11 +65,11 @@ class ParcheNotificationConsumerTest {
         consumer.handleNearbyParche(event);
 
         verify(sendNotificationUseCase).execute(
-                eq("user-123"),
+                eq(USER_ID_2),
                 eq(NotificationType.NEARBY_PARCHE),
                 eq("Parche cercano"),
                 contains("Parche en la plaza"),
-                eq("parche-001")
+                eq(PARCHE_ID_2)
         );
     }
 }

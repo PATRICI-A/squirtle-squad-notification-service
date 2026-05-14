@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,9 +25,8 @@ public class EventReminderRepositoryAdapter implements EventReminderRepository {
     }
 
     @Override
-    public Optional<EventReminder> findByUserIdAndEventId(
-            String userId, String eventId) {
-        return mongoRepository.findByUserIdAndEventId(userId, eventId)
+    public Optional<EventReminder> findByUserIdAndEventId(UUID userId, UUID eventId) {
+        return mongoRepository.findByUserIdAndEventId(userId.toString(), eventId.toString())
                 .map(mapper::toDomain);
     }
 

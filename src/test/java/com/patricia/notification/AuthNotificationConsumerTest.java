@@ -13,11 +13,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class AuthNotificationConsumerTest {
+
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     @Mock
     private SendNotificationUseCase sendNotificationUseCase;
@@ -29,6 +33,7 @@ class AuthNotificationConsumerTest {
     @DisplayName("handleOtpVerification debe enviar notificación OTP con código")
     void handleOtpVerification_shouldSendOtpNotification() {
         OtpVerificationEventDto event = OtpVerificationEventDto.builder()
+                .userId(USER_ID)
                 .email("user@example.com")
                 .otpCode("123456")
                 .build();
@@ -36,7 +41,7 @@ class AuthNotificationConsumerTest {
         consumer.handleOtpVerification(event);
 
         verify(sendNotificationUseCase).execute(
-                eq("user@example.com"),
+                eq(USER_ID),
                 eq(NotificationType.OTP_VERIFICATION),
                 eq("Código de verificación"),
                 contains("123456"),
@@ -48,6 +53,7 @@ class AuthNotificationConsumerTest {
     @DisplayName("handleOtpResend debe enviar nuevo código OTP")
     void handleOtpResend_shouldSendNewOtpNotification() {
         OtpResendEventDto event = OtpResendEventDto.builder()
+                .userId(USER_ID)
                 .email("user@example.com")
                 .otpCode("654321")
                 .build();
@@ -55,7 +61,7 @@ class AuthNotificationConsumerTest {
         consumer.handleOtpResend(event);
 
         verify(sendNotificationUseCase).execute(
-                eq("user@example.com"),
+                eq(USER_ID),
                 eq(NotificationType.OTP_VERIFICATION),
                 eq("Nuevo código de verificación"),
                 contains("654321"),
@@ -69,17 +75,17 @@ class AuthNotificationConsumerTest {
         PasswordResetEventDto event = PasswordResetEventDto.builder()
                 .email("user@example.com")
                 .resetCode("RESET-ABC-001")
-                .userId("user-123")
+                .userId(USER_ID)
                 .build();
 
         consumer.handlePasswordReset(event);
 
         verify(sendNotificationUseCase).execute(
-                eq("user@example.com"),
+                eq(USER_ID),
                 eq(NotificationType.PASSWORD_RESET),
                 eq("Recuperación de contraseña"),
                 contains("RESET-ABC-001"),
-                eq("user-123")
+                eq(USER_ID)
         );
     }
 }

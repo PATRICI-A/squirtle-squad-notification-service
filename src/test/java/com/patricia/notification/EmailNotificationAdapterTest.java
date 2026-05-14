@@ -13,12 +13,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
+import java.util.UUID;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class EmailNotificationAdapterTest {
+
+    private static final UUID NOTIF_ID_1 = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID NOTIF_ID_2 = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID USER_ID    = UUID.fromString("00000000-0000-0000-0000-000000000010");
 
     @Mock
     private JavaMailSender mailSender;
@@ -30,8 +36,9 @@ class EmailNotificationAdapterTest {
     @DisplayName("deliver debe enviar email con el título y cuerpo de la notificación")
     void deliver_shouldSendEmailWithNotificationContent() {
         Notification notification = Notification.builder()
-                .id("notif-001")
-                .userId("user@example.com")
+                .id(NOTIF_ID_1)
+                .userId(USER_ID)
+                .recipientEmail("user@example.com")
                 .type(NotificationType.OTP_VERIFICATION)
                 .channel(NotificationChannel.EMAIL)
                 .title("Código de verificación")
@@ -48,8 +55,9 @@ class EmailNotificationAdapterTest {
     @DisplayName("deliver no debe propagar excepción cuando JavaMailSender falla")
     void deliver_shouldNotPropagateException_whenMailSenderFails() {
         Notification notification = Notification.builder()
-                .id("notif-002")
-                .userId("user@example.com")
+                .id(NOTIF_ID_2)
+                .userId(USER_ID)
+                .recipientEmail("user@example.com")
                 .type(NotificationType.PASSWORD_RESET)
                 .channel(NotificationChannel.EMAIL)
                 .title("Reset")
@@ -59,7 +67,6 @@ class EmailNotificationAdapterTest {
 
         doThrow(new RuntimeException("SMTP error")).when(mailSender).send(any(SimpleMailMessage.class));
 
-        // Should not throw
         adapter.deliver(notification);
 
         verify(mailSender).send(any(SimpleMailMessage.class));

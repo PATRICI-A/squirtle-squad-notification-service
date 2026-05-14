@@ -2,9 +2,11 @@ package com.patricia.notification.infrastructure.config;
 
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
+import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +22,9 @@ public class RabbitMQConfig {
 
     @Value("${rabbitmq.exchange.social}")
     private String socialExchange;
+
+    @Value("${rabbitmq.exchange.hangout}")
+    private String hangoutExchange;
 
     //Queues
     @Value("${rabbitmq.queue.otp-verification}")
@@ -75,6 +80,29 @@ public class RabbitMQConfig {
         return new TopicExchange(socialExchange);
     }
 
+    @Bean
+    public TopicExchange hangoutExchange() {
+        return new TopicExchange(hangoutExchange);
+    }
+
+    @Value("${rabbitmq.queue.invitation-accepted}")
+    private String invitationAcceptedQueue;
+
+    @Value("${rabbitmq.queue.invitation-sent}")
+    private String invitationSentQueue;
+
+    @Value("${rabbitmq.queue.member-joined}")
+    private String memberJoinedQueue;
+
+    @Value("${rabbitmq.routing-key.invitation-accepted}")
+    private String invitationAcceptedRoutingKey;
+
+    @Value("${rabbitmq.routing-key.invitation-sent}")
+    private String invitationSentRoutingKey;
+
+    @Value("${rabbitmq.routing-key.member-joined}")
+    private String memberJoinedRoutingKey;
+
     //Queues beans
     @Bean public Queue otpVerificationQueue() { return new Queue(otpVerificationQueue); }
     @Bean public Queue otpResendQueue()        { return new Queue(otpResendQueue); }
@@ -82,8 +110,11 @@ public class RabbitMQConfig {
     @Bean public Queue parcheInvitationQueue() { return new Queue(parcheInvitationQueue); }
     @Bean public Queue nearbyParcheQueue()     { return new Queue(nearbyParcheQueue); }
     @Bean public Queue connectionRequestQueue(){ return new Queue(connectionRequestQueue); }
+    @Bean public Queue invitationAcceptedQueue(){ return new Queue(invitationAcceptedQueue); }
+    @Bean public Queue invitationSentQueue()    { return new Queue(invitationSentQueue); }
+    @Bean public Queue memberJoinedQueue()      { return new Queue(memberJoinedQueue); }
 
-    //Bindings (queue ↔ exchange <-> routing key)
+    //Bindings
     @Bean
     public Binding otpVerificationBinding() {
         return BindingBuilder.bind(otpVerificationQueue())
@@ -124,6 +155,39 @@ public class RabbitMQConfig {
         return BindingBuilder.bind(connectionRequestQueue())
                 .to(socialExchange())
                 .with(connectionRequestRoutingKey);
+    }
+
+    @Bean
+    public Binding invitationAcceptedBinding() {
+        return BindingBuilder.bind(invitationAcceptedQueue())
+                .to(hangoutExchange())
+                .with(invitationAcceptedRoutingKey);
+    }
+
+    @Bean
+    public Binding invitationSentBinding() {
+        return BindingBuilder.bind(invitationSentQueue())
+                .to(hangoutExchange())
+                .with(invitationSentRoutingKey);
+    }
+
+    @Bean
+    public Binding memberJoinedBinding() {
+        return BindingBuilder.bind(memberJoinedQueue())
+                .to(hangoutExchange())
+                .with(memberJoinedRoutingKey);
+    }
+
+    @Bean
+    public RabbitAdmin rabbitAdmin(ConnectionFactory connectionFactory) {
+        RabbitAdmin admin = new RabbitAdmin(connectionFactory);
+        admin.setAutoStartup(true);
+        return admin;
+    }
+
+    @Bean
+    public ApplicationRunner declareRabbitTopology(RabbitAdmin rabbitAdmin) {
+        return args -> rabbitAdmin.initialize();
     }
 
     //Convertidor JSON

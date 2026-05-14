@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,6 +22,10 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UpdatePreferencesUseCaseImplTest {
+
+    private static final UUID USER_ID     = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID USER_ID_NEW = UUID.fromString("00000000-0000-0000-0000-000000000002");
+    private static final UUID USER_ID_3   = UUID.fromString("00000000-0000-0000-0000-000000000003");
 
     @Mock
     private PreferencesRepository preferencesRepository;
@@ -32,7 +37,7 @@ class UpdatePreferencesUseCaseImplTest {
     @DisplayName("Debe actualizar una preferencia existente")
     void execute_shouldUpdateExistingPreference() {
         NotificationPreferences existing = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
                 .parcheMessage(true)
                 .eventReminder(true)
@@ -42,20 +47,20 @@ class UpdatePreferencesUseCaseImplTest {
                 .build();
 
         NotificationPreferences updated = NotificationPreferences.builder()
-                .userId("user-123")
+                .userId(USER_ID)
                 .connectionRequest(true)
-                .parcheMessage(false)  // cambió
+                .parcheMessage(false)
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
                 .parcheInvitation(true)
                 .build();
 
-        when(preferencesRepository.findByUserId("user-123")).thenReturn(Optional.of(existing));
+        when(preferencesRepository.findByUserId(USER_ID)).thenReturn(Optional.of(existing));
         when(preferencesRepository.save(any())).thenReturn(updated);
 
         NotificationPreferences result = useCase.execute(
-                "user-123", NotificationType.PARCHE_MESSAGE, false);
+                USER_ID, NotificationType.PARCHE_MESSAGE, false);
 
         assertThat(result.isParcheMessage()).isFalse();
         verify(preferencesRepository).save(any(NotificationPreferences.class));
@@ -64,12 +69,12 @@ class UpdatePreferencesUseCaseImplTest {
     @Test
     @DisplayName("Debe crear preferencias por defecto si no existen")
     void execute_shouldCreateDefaultPreferences_whenNotFound() {
-        when(preferencesRepository.findByUserId("user-nuevo")).thenReturn(Optional.empty());
+        when(preferencesRepository.findByUserId(USER_ID_NEW)).thenReturn(Optional.empty());
 
         NotificationPreferences newPrefs = NotificationPreferences.builder()
-                .userId("user-nuevo")
+                .userId(USER_ID_NEW)
                 .connectionRequest(true)
-                .parcheMessage(false)  // actualizado a false
+                .parcheMessage(false)
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
@@ -79,9 +84,9 @@ class UpdatePreferencesUseCaseImplTest {
         when(preferencesRepository.save(any())).thenReturn(newPrefs);
 
         NotificationPreferences result = useCase.execute(
-                "user-nuevo", NotificationType.PARCHE_MESSAGE, false);
+                USER_ID_NEW, NotificationType.PARCHE_MESSAGE, false);
 
-        assertThat(result.getUserId()).isEqualTo("user-nuevo");
+        assertThat(result.getUserId()).isEqualTo(USER_ID_NEW);
         assertThat(result.isParcheMessage()).isFalse();
         verify(preferencesRepository).save(any(NotificationPreferences.class));
     }
@@ -90,7 +95,7 @@ class UpdatePreferencesUseCaseImplTest {
     @DisplayName("Debe guardar las preferencias después de actualizar")
     void execute_shouldPersistUpdatedPreferences() {
         NotificationPreferences existing = NotificationPreferences.builder()
-                .userId("user-456")
+                .userId(USER_ID_3)
                 .connectionRequest(false)
                 .parcheMessage(true)
                 .eventReminder(false)
@@ -101,13 +106,12 @@ class UpdatePreferencesUseCaseImplTest {
 
         ArgumentCaptor<NotificationPreferences> captor = ArgumentCaptor.forClass(NotificationPreferences.class);
 
-        when(preferencesRepository.findByUserId("user-456")).thenReturn(Optional.of(existing));
+        when(preferencesRepository.findByUserId(USER_ID_3)).thenReturn(Optional.of(existing));
         when(preferencesRepository.save(captor.capture())).thenReturn(existing);
 
-        useCase.execute("user-456", NotificationType.CONNECTION_REQUEST, true);
+        useCase.execute(USER_ID_3, NotificationType.CONNECTION_REQUEST, true);
 
         verify(preferencesRepository).save(captor.getValue());
         assertThat(captor.getValue().isConnectionRequest()).isTrue();
     }
 }
-

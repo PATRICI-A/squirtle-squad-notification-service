@@ -5,13 +5,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.UUID;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ParcheInvitationEventDto {
-    private String targetUserId;
+    private UUID targetUserId;
     private String inviterUserName;
-    private String parcheId;
+    private UUID parcheId;
     private String parcheName;
 }

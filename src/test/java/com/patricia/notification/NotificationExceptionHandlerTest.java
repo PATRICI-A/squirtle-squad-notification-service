@@ -17,12 +17,16 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class NotificationExceptionHandlerTest {
+
+    private static final UUID NOTIF_ID = UUID.fromString("00000000-0000-0000-0000-000000000010");
+    private static final UUID USER_ID  = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
     private NotificationExceptionHandler handler;
 
@@ -34,7 +38,7 @@ class NotificationExceptionHandlerTest {
     @Test
     @DisplayName("handleNotificationNotFound debe retornar 404 con mensaje")
     void handleNotificationNotFound_shouldReturn404() {
-        NotificationNotFoundException ex = new NotificationNotFoundException("notif-123");
+        NotificationNotFoundException ex = new NotificationNotFoundException(NOTIF_ID);
         ResponseEntity<Map<String, Object>> response = handler.handleNotificationNotFound(ex);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
@@ -48,7 +52,7 @@ class NotificationExceptionHandlerTest {
     @DisplayName("handleTypeDisabled debe retornar 409")
     void handleTypeDisabled_shouldReturn409() {
         NotificationTypeDisabledException ex =
-                new NotificationTypeDisabledException("user-1", NotificationType.NEARBY_PARCHE);
+                new NotificationTypeDisabledException(USER_ID, NotificationType.NEARBY_PARCHE);
         ResponseEntity<Map<String, Object>> response = handler.handleTypeDisabled(ex);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT);
@@ -59,7 +63,7 @@ class NotificationExceptionHandlerTest {
     @Test
     @DisplayName("handleDailyLimit debe retornar 429")
     void handleDailyLimit_shouldReturn429() {
-        NotificationDailyLimitException ex = new NotificationDailyLimitException("user-1");
+        NotificationDailyLimitException ex = new NotificationDailyLimitException(USER_ID);
         ResponseEntity<Map<String, Object>> response = handler.handleDailyLimit(ex);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.TOO_MANY_REQUESTS);

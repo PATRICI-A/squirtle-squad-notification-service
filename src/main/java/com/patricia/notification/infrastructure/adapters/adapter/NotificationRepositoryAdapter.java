@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,26 +26,26 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
     }
 
     @Override
-    public Optional<Notification> findById(String id) {
-        return mongoRepository.findById(id).map(mapper::toDomain);
+    public Optional<Notification> findById(UUID id) {
+        return mongoRepository.findById(id.toString()).map(mapper::toDomain);
     }
 
     @Override
-    public List<Notification> findByUserIdPaged(String userId, int page, int size) {
+    public List<Notification> findByUserIdPaged(UUID userId, int page, int size) {
         return mongoRepository.findByUserIdOrderByCreatedAtDesc(
-                        userId, PageRequest.of(page, size))
+                        userId.toString(), PageRequest.of(page, size))
                 .stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public int countUnreadByUserId(String userId) {
-        return mongoRepository.countByUserIdAndReadFalse(userId);
+    public int countUnreadByUserId(UUID userId) {
+        return mongoRepository.countByUserIdAndReadFalse(userId.toString());
     }
 
     @Override
-    public void markAllAsReadByUserId(String userId) {
-        mongoRepository.markAllAsReadByUserId(userId);
+    public void markAllAsReadByUserId(UUID userId) {
+        mongoRepository.markAllAsReadByUserId(userId.toString());
     }
 }

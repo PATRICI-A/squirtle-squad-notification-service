@@ -7,6 +7,8 @@ import com.patricia.notification.domain.ports.out.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class MarkAsReadUseCaseImpl implements MarkAsReadUseCase {
@@ -14,7 +16,7 @@ public class MarkAsReadUseCaseImpl implements MarkAsReadUseCase {
     private final NotificationRepository notificationRepository;
 
     @Override
-    public void executeSingle(String notificationId, String userId) {
+    public void executeSingle(UUID notificationId, UUID userId) {
         Notification notification = notificationRepository.findById(notificationId)
                 .orElseThrow(() -> new NotificationNotFoundException(notificationId));
 
@@ -23,7 +25,7 @@ public class MarkAsReadUseCaseImpl implements MarkAsReadUseCase {
     }
 
     @Override
-    public void executeAll(String userId) {
+    public void executeAll(UUID userId) {
         notificationRepository.markAllAsReadByUserId(userId);
     }
 }

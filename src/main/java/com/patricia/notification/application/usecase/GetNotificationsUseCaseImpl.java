@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -15,7 +16,7 @@ public class GetNotificationsUseCaseImpl implements GetNotificationsUseCase {
     private final NotificationRepository notificationRepository;
 
     @Override
-    public List<Notification> execute(String userId, int page, int size) {
+    public List<Notification> execute(UUID userId, int page, int size) {
         return notificationRepository.findByUserIdPaged(userId, page, size);
     }
 }

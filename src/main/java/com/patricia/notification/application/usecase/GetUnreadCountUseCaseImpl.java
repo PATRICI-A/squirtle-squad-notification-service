@@ -5,6 +5,8 @@ import com.patricia.notification.domain.ports.out.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class GetUnreadCountUseCaseImpl implements GetUnreadCountUseCase {
@@ -12,7 +14,7 @@ public class GetUnreadCountUseCaseImpl implements GetUnreadCountUseCase {
     private final NotificationRepository notificationRepository;
 
     @Override
-    public int execute(String userId) {
+    public int execute(UUID userId) {
         return notificationRepository.countUnreadByUserId(userId);
     }
 }

@@ -20,8 +20,9 @@ public class AuthNotificationConsumer {
     @RabbitListener(queues = "${rabbitmq.queue.otp-verification}")
     public void handleOtpVerification(OtpVerificationEventDto event) {
         log.info("Evento recibido: OTP verificación para {}", event.getEmail());
+        if (event.getUserId() == null) return; // pre-registro: usuario aún no existe
         sendNotificationUseCase.execute(
-                event.getEmail(),
+                event.getUserId(),
                 NotificationType.OTP_VERIFICATION,
                 "Código de verificación",
                 "Tu código de verificación para PATRICIA es: " + event.getOtpCode()
@@ -35,7 +36,7 @@ public class AuthNotificationConsumer {
     public void handleOtpResend(OtpResendEventDto event) {
         log.info("Evento recibido: OTP reenvío para {}", event.getEmail());
         sendNotificationUseCase.execute(
-                event.getEmail(),
+                event.getUserId(),
                 NotificationType.OTP_VERIFICATION,
                 "Nuevo código de verificación",
                 "Tu nuevo código de verificación para PATRICIA es: " + event.getOtpCode()
@@ -49,7 +50,7 @@ public class AuthNotificationConsumer {
     public void handlePasswordReset(PasswordResetEventDto event) {
         log.info("Evento recibido: recuperación de contraseña para {}", event.getEmail());
         sendNotificationUseCase.execute(
-                event.getEmail(),
+                event.getUserId(),
                 NotificationType.PASSWORD_RESET,
                 "Recuperación de contraseña",
                 "Recibimos una solicitud para restablecer tu contraseña en PATRICIA."
