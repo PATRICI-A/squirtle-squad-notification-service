@@ -55,9 +55,10 @@ jobs:
           MAIL_USERNAME: ci-noreply@example.com
           MAIL_PASSWORD: dummy-ci-password
         run: |
-          mvn clean verify sonar:sonar -B \
-            -Dsonar.projectKey=patrici-a \
-            -Dsonar.organization=${SONAR_ORGANIZATION} \
-            -Dsonar.host.url=${SONAR_HOST_URL} \
-            -Dsonar.token=${SONAR_TOKEN} \
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+          ./mvnw clean verify sonar:sonar \
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }} \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml \
+            -Dsonar.java.source=21
