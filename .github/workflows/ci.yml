@@ -1,4 +1,4 @@
-name: CI – Notification Service
+name: CI/CD – PATRICIA Notification Service
 
 on:
   pull_request:
