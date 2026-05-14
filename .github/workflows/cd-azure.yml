@@ -78,4 +78,4 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: ${{ secrets.AZURE_APP_SERVICE_NAME }}
-          package: target/*.jar
+          package: target/notification-service-0.0.1-SNAPSHOT.jar
