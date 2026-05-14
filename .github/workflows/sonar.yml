@@ -38,22 +38,24 @@ jobs:
           distribution: temurin
           cache: maven
 
+      - name: Grant execute permission to Maven Wrapper
+        run: chmod +x mvnw
+
       - name: Run Sonar Analysis
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          GITHUB_TOKEN:      ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:       ${{ secrets.SONAR_TOKEN }}
           SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI_TEST }}
-          MONGODB_DATABASE: notification_db
-          RABBITMQ_HOST: localhost
-          RABBITMQ_PORT: 5672
+          MONGODB_URI:       ${{ secrets.MONGODB_URI_TEST }}
+          MONGODB_DATABASE:  notification_db
+          RABBITMQ_HOST:     localhost
+          RABBITMQ_PORT:     5672
           RABBITMQ_USERNAME: guest
           RABBITMQ_PASSWORD: guest
-          RABBITMQ_VHOST: /
-          RABBITMQ_SSL: false
-          MAIL_USERNAME: ci-noreply@example.com
-          MAIL_PASSWORD: dummy-ci-password
+          RABBITMQ_VHOST:    /
+          RABBITMQ_SSL:      false
+          MAIL_USERNAME:     ci-noreply@example.com
+          MAIL_PASSWORD:     dummy-ci-password
         run: |
           ./mvnw clean verify sonar:sonar \
             -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} \
