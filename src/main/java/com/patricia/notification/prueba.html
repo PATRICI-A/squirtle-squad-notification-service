@@ -19,20 +19,18 @@
 
     function connect() {
         const userId = document.getElementById('userId').value;
-        const socket = new SockJS('http://localhost:8082/ws/notifications');
+        const socket = new SockJS('https://app-patricia-notification-b4d2hcd0fqd7bkcm.canadacentral-01.azurewebsites.net/ws/notifications');
         stompClient = Stomp.over(socket);
 
         stompClient.connect({}, function () {
             document.getElementById('status').innerText = '✅ Conectado como: ' + userId;
 
-            // Suscribirse al canal del usuario
             stompClient.subscribe('/topic/notifications/' + userId, function (msg) {
                 const notif = JSON.parse(msg.body);
                 document.getElementById('messages').innerHTML +=
                     '<p><b>' + notif.title + '</b>: ' + notif.body + '</p>';
             });
 
-            // Avisar conexión
             stompClient.send('/app/notifications.connect', {}, userId);
         });
     }

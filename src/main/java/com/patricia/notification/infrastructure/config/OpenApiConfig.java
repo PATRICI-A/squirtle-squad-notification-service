@@ -48,6 +48,7 @@ public class OpenApiConfig {
                                 .name("Squirtle Squad — Escuela Colombiana de Ingeniería Julio Garavito")
                                 .email("carreaporfa@gmail.com")))
                 .servers(List.of(
+                        new Server().url("https://app-patricia-notification-b4d2hcd0fqd7bkcm.canadacentral-01.azurewebsites.net").description("Azure"),
                         new Server().url("http://localhost:8082").description("Local")));
     }
 
