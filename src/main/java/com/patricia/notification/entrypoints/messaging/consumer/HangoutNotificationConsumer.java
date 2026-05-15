@@ -2,6 +2,7 @@ package com.patricia.notification.entrypoints.messaging.consumer;
 
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.domain.validation.EventDtoValidator;
 import com.patricia.notification.entrypoints.messaging.dto.InvitationAcceptedEventDto;
 import com.patricia.notification.entrypoints.messaging.dto.InvitationSentEventDto;
 import com.patricia.notification.entrypoints.messaging.dto.MemberJoinedEventDto;
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Component;
 public class HangoutNotificationConsumer {
 
     private final SendNotificationUseCase sendNotificationUseCase;
+    private final EventDtoValidator eventDtoValidator;
 
     @RabbitListener(queues = "${rabbitmq.queue.invitation-accepted}")
     public void handleInvitationAccepted(InvitationAcceptedEventDto event) {
+        eventDtoValidator.validate(event);
         log.info("Evento recibido: invitación aceptada, capitán {}", event.getCaptainId());
         sendNotificationUseCase.execute(
                 event.getCaptainId(),
@@ -31,6 +34,7 @@ public class HangoutNotificationConsumer {
 
     @RabbitListener(queues = "${rabbitmq.queue.invitation-sent}")
     public void handleInvitationSent(InvitationSentEventDto event) {
+        eventDtoValidator.validate(event);
         log.info("Evento recibido: invitación enviada a {}", event.getInvitedStudentId());
         sendNotificationUseCase.execute(
                 event.getInvitedStudentId(),
@@ -43,6 +47,7 @@ public class HangoutNotificationConsumer {
 
     @RabbitListener(queues = "${rabbitmq.queue.member-joined}")
     public void handleMemberJoined(MemberJoinedEventDto event) {
+        eventDtoValidator.validate(event);
         log.info("Evento recibido: nuevo miembro en parche {}", event.getNombreParche());
         sendNotificationUseCase.execute(
                 event.getCapitanId(),

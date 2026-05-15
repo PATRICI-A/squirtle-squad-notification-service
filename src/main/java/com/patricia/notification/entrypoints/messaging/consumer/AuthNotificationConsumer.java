@@ -2,6 +2,7 @@ package com.patricia.notification.entrypoints.messaging.consumer;
 
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.domain.validation.EventDtoValidator;
 import com.patricia.notification.entrypoints.messaging.dto.OtpVerificationEventDto;
 import com.patricia.notification.entrypoints.messaging.dto.OtpResendEventDto;
 import com.patricia.notification.entrypoints.messaging.dto.PasswordResetEventDto;
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Component;
 public class AuthNotificationConsumer {
 
     private final SendNotificationUseCase sendNotificationUseCase;
+    private final EventDtoValidator eventDtoValidator;
 
     @RabbitListener(queues = "${rabbitmq.queue.otp-verification}")
     public void handleOtpVerification(OtpVerificationEventDto event) {
+        eventDtoValidator.validate(event);
         log.info("Evento recibido: OTP verificación para {}", event.getEmail());
         if (event.getUserId() == null) return; // pre-registro: usuario aún no existe
         sendNotificationUseCase.execute(
@@ -34,6 +37,7 @@ public class AuthNotificationConsumer {
 
     @RabbitListener(queues = "${rabbitmq.queue.otp-resend}")
     public void handleOtpResend(OtpResendEventDto event) {
+        eventDtoValidator.validate(event);
         log.info("Evento recibido: OTP reenvío para {}", event.getEmail());
         sendNotificationUseCase.execute(
                 event.getUserId(),
@@ -48,6 +52,7 @@ public class AuthNotificationConsumer {
 
     @RabbitListener(queues = "${rabbitmq.queue.password-reset}")
     public void handlePasswordReset(PasswordResetEventDto event) {
+        eventDtoValidator.validate(event);
         log.info("Evento recibido: recuperación de contraseña para {}", event.getEmail());
         sendNotificationUseCase.execute(
                 event.getUserId(),
