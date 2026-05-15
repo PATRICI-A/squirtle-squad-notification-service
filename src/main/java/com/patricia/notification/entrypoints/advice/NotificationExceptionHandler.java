@@ -88,7 +88,7 @@ public class NotificationExceptionHandler {
                 .stream()
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .findFirst()
-                .orElse("Validation error");
+                .orElse("Error de validación");
         return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
@@ -115,7 +115,7 @@ public class NotificationExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleGeneric(Exception ex) {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR,
-                "Internal server error");
+                "Error interno del servidor");
     }
 
     /**

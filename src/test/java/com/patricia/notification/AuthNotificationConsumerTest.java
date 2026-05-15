@@ -2,6 +2,7 @@ package com.patricia.notification;
 
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.domain.validation.EventDtoValidator;
 import com.patricia.notification.entrypoints.messaging.consumer.AuthNotificationConsumer;
 import com.patricia.notification.entrypoints.messaging.dto.OtpResendEventDto;
 import com.patricia.notification.entrypoints.messaging.dto.OtpVerificationEventDto;
@@ -25,6 +26,9 @@ class AuthNotificationConsumerTest {
 
     @Mock
     private SendNotificationUseCase sendNotificationUseCase;
+
+    @Mock
+    private EventDtoValidator eventDtoValidator;
 
     @InjectMocks
     private AuthNotificationConsumer consumer;
