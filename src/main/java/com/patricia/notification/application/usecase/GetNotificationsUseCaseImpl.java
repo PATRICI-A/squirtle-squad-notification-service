@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Retrieves a paginated list of notifications for a user, ordered by creation date descending.
+ */
 @Component
 @RequiredArgsConstructor
 public class GetNotificationsUseCaseImpl implements GetNotificationsUseCase {

@@ -2,6 +2,7 @@ package com.patricia.notification;
 
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.domain.validation.EventDtoValidator;
 import com.patricia.notification.entrypoints.messaging.consumer.ParcheNotificationConsumer;
 import com.patricia.notification.entrypoints.messaging.dto.NearbyParcheEventDto;
 import com.patricia.notification.entrypoints.messaging.dto.ParcheInvitationEventDto;
@@ -27,6 +28,9 @@ class ParcheNotificationConsumerTest {
 
     @Mock
     private SendNotificationUseCase sendNotificationUseCase;
+
+    @Mock
+    private EventDtoValidator eventDtoValidator;
 
     @InjectMocks
     private ParcheNotificationConsumer consumer;

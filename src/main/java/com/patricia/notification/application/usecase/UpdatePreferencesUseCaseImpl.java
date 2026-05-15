@@ -10,6 +10,12 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Enables or disables a specific notification type for a user and persists the change.
+ *
+ * <p>If no preferences record exists for the user, default preferences are created
+ * in-memory before applying the update. The updated record is then persisted.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class UpdatePreferencesUseCaseImpl implements UpdatePreferencesUseCase {

@@ -10,6 +10,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Scheduled service that polls pending event reminders and fires notifications
+ * at the appropriate time windows.
+ *
+ * <p>Runs every 10 minutes ({@code fixedDelay = 600000 ms}). For each pending reminder,
+ * it independently checks whether the 24-hour or 1-hour notification should fire,
+ * sends the notification via {@link SendNotificationUseCase}, and persists the updated
+ * reminder flags to prevent duplicate sends.</p>
+ *
+ * <p>Both checks are independent per iteration: if an event is within the 1-hour window
+ * and the 24-hour notification was already sent, only the 1-hour notification fires.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class EventReminderService {
@@ -17,6 +29,9 @@ public class EventReminderService {
     private final EventReminderRepository eventReminderRepository;
     private final SendNotificationUseCase sendNotificationUseCase;
 
+    /**
+     * Processes all pending reminders. Invoked automatically every 10 minutes.
+     */
     @Scheduled(fixedDelay = 600000)
     public void processReminders() {
         List<EventReminder> pending = eventReminderRepository.findPendingReminders();

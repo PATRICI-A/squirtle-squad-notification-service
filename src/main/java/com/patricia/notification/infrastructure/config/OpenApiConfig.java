@@ -11,26 +11,37 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
+/**
+ * OpenAPI / Swagger UI configuration for the notification service.
+ *
+ * <p>Registers global API metadata and injects the {@code X-User-Id} header
+ * parameter into every operation so callers are reminded to supply it.</p>
+ */
 @Configuration
 public class OpenApiConfig {
 
+    /**
+     * Builds the OpenAPI metadata (title, description, version, contact, servers).
+     *
+     * @return the configured {@link OpenAPI} instance
+     */
     @Bean
     public OpenAPI notificationServiceOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("PATRICI.A — Notification Service")
                         .description("""
-                                Microservicio M04 del proyecto PATRICI.A (Squirtle Squad).
-                                Gestiona notificaciones en tiempo real via WebSocket y persistencia en MongoDB.
+                                Microservice M04 of the PATRICI.A project (Squirtle Squad).
+                                Manages real-time notifications via WebSocket and persists them in MongoDB.
 
-                                **Autenticación:** El API Gateway propaga el header `X-User-Id` con el ID del usuario autenticado.
-                                Todos los endpoints requieren este header.
+                                **Authentication:** The API Gateway propagates the `X-User-Id` header with the authenticated user's ID.
+                                All endpoints require this header.
 
-                                **Canal de entrega:** IN_APP únicamente. Las notificaciones se entregan via WebSocket
-                                si el usuario está conectado; si no, quedan persistidas en MongoDB.
+                                **Delivery channel:** IN_APP only. Notifications are pushed via WebSocket
+                                when the user is connected; otherwise they are persisted in MongoDB for later retrieval.
 
-                                **WebSocket:** `ws://localhost:8082/ws/notifications` (STOMP sobre SockJS)
-                                — canal por usuario: `/topic/notifications/{userId}`
+                                **WebSocket:** `ws://localhost:8082/ws/notifications` (STOMP over SockJS)
+                                — user-specific topic: `/topic/notifications/{userId}`
                                 """)
                         .version("1.0.0")
                         .contact(new Contact()
@@ -40,13 +51,19 @@ public class OpenApiConfig {
                         new Server().url("http://localhost:8082").description("Local")));
     }
 
+    /**
+     * Adds the {@code X-User-Id} header as a required parameter to every API operation
+     * so it appears in the Swagger UI try-it-out form.
+     *
+     * @return the customizer applied to all registered operations
+     */
     @Bean
     public OperationCustomizer userIdHeaderCustomizer() {
         return (operation, handlerMethod) -> {
             operation.addParametersItem(new Parameter()
                     .in("header")
                     .name("X-User-Id")
-                    .description("ID del usuario autenticado, propagado por el API Gateway")
+                    .description("Authenticated user ID propagated by the API Gateway")
                     .required(true)
                     .example("user-123"));
             return operation;

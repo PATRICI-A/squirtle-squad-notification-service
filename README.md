@@ -44,12 +44,12 @@
 
 ## 1. 👤 Integrantes
 
-| Nombre | correo                                     |
-|---|--------------------------------------------|
+| Nombre | Correo |
+|---|---|
 | Cristian Guerrero | cristian.guerrero-b@mail.escuelaing.edu.co |
-| Santiago Cajamarca | david.cajamarca-c@mail.escuelaing.edu.co   |
-| Nicolas Sanchez | nicolas.sanchez-g@mail.escuelaing.edu.co   |
-| Daniel Rodriguez | daniel.rsuarez@mail.escuelaing.edu.co      |
+| Santiago Cajamarca | david.cajamarca-c@mail.escuelaing.edu.co |
+| Nicolas Sanchez | nicolas.sanchez-g@mail.escuelaing.edu.co |
+| Daniel Rodriguez | daniel.rsuarez@mail.escuelaing.edu.co |
 
 El equipo **Squirtle Squad** aplicó la metodología **Scrum** con sprints semanales, usando **Jira** para seguimiento de tareas y **GitHub Projects** como tablero de trabajo.
 
@@ -61,17 +61,17 @@ El equipo **Squirtle Squad** aplicó la metodología **Scrum** con sprints seman
 |---|---|
 | **Java 21** | Lenguaje principal de desarrollo |
 | **Spring Boot 3.3.0** | Framework principal del backend — gestión de dependencias y ciclo de vida de la aplicación |
-| **Spring Security** | Autenticación y autorización mediante JWT |
+| **Spring Security** | Configuración de seguridad stateless; autenticación delegada al API Gateway mediante header `X-User-Id` |
 | **Spring WebSocket + STOMP** | Canal de entrega de notificaciones en tiempo real al usuario conectado |
 | **Spring AMQP / RabbitMQ** | Broker de mensajería asíncrona para consumo de eventos de otros módulos |
 | **Spring Data MongoDB** | Persistencia de notificaciones, preferencias y recordatorios |
 | **MongoDB Atlas** | Base de datos NoSQL en la nube — colecciones `notifications`, `notificationPreferences`, `eventReminders` |
 | **Spring Mail (JavaMailSender)** | Envío de notificaciones transaccionales por correo electrónico |
-| **OpenFeign** | Comunicación sincrónica con módulos externos cuando se requiere |
+| **Jakarta Bean Validation** | Validación declarativa de DTOs REST y programática para mensajes RabbitMQ |
 | **Lombok** | Reducción de código repetitivo con `@Builder`, `@Getter`, `@RequiredArgsConstructor` |
 | **SpringDoc OpenAPI 2.5.0** | Generación automática de documentación Swagger UI |
-| **JUnit 5 + Mockito** | Pruebas unitarias e integración con mocking de puertos y dependencias |
-| **JaCoCo** | Reportes de cobertura de código |
+| **JUnit 5 + Mockito** | Pruebas unitarias con mocking de puertos y dependencias |
+| **JaCoCo 0.8.10** | Reportes de cobertura de código — mínimo 85% global, 95% en casos de uso |
 | **Apache Maven 3.9** | Herramienta de construcción y gestión de dependencias |
 | **Docker + Docker Compose** | Contenedorización del servicio y orquestación local con RabbitMQ y MongoDB |
 | **GitHub Actions** | Pipeline de integración continua (build y pruebas automáticas) |
@@ -80,20 +80,21 @@ El equipo **Squirtle Squad** aplicó la metodología **Scrum** con sprints seman
 
 ## 3. 🎯 Descripción del Módulo
 
-El microservicio de Notificaciones es el componente central del sistema PATRICI.A responsable de orquestar el flujo 
-completo de alertas y recordatorios de la plataforma. Opera como un sistema reactivo orientado a eventos: consume señales 
-de los demás módulos del ecosistema (parches, social) y las transforma en notificaciones dirigidas al usuario correcto, 
-en el canal correcto y en el momento correcto. Su diseño garantiza que ningún evento relevante se pierda — si el usuario 
-está conectado, lo recibe en tiempo real vía WebSocket; si no, la notificación queda persistida y disponible para cuando regrese. Más allá de la entrega, el módulo también gestiona las preferencias individuales de cada usuario y ejecuta recordatorios automáticos de eventos, posicionándose como la capa de comunicación activa entre la plataforma y sus usuarios.
+El microservicio de Notificaciones (M04) es el componente central del sistema PATRICI.A responsable de orquestar el flujo completo de alertas y recordatorios de la plataforma. Opera como un sistema reactivo orientado a eventos: consume señales de los demás módulos del ecosistema (autenticación, parches, social, hangout) y las transforma en notificaciones dirigidas al usuario correcto, en el canal correcto y en el momento correcto.
+
+Su diseño garantiza que ningún evento relevante se pierda — si el usuario está conectado, lo recibe en tiempo real vía WebSocket; si no, la notificación queda persistida en MongoDB para cuando regrese. Más allá de la entrega, el módulo también gestiona las preferencias individuales de cada usuario y ejecuta recordatorios automáticos de eventos.
+
 ### Funcionalidades Principales
 
 | 💡 Funcionalidad | Descripción |
 |---|---|
 | **Entrega en Tiempo Real** | Entrega notificaciones instantáneas al usuario conectado mediante WebSocket STOMP sobre el topic `/topic/notifications/{userId}`. |
-| **Persistencia In-App** | Persiste todas las notificaciones en MongoDB para que el usuario pueda consultarlas aunque no estuviera conectado en el momento de la generación. |
-| **Gestión de Preferencias** | Permite a cada usuario habilitar o deshabilitar tipos de notificación de forma individual según sus preferencias. |
-| **Recordatorios Automáticos** | Un scheduler evalúa eventos guardados cada 10 minutos y envía recordatorios automáticos a las 24h y a la 1h antes del inicio del evento. |
-| **Consumo de Eventos Asíncrono** | Consume eventos de otros módulos (parches, social) vía RabbitMQ sin acoplamiento sincrónico con los productores. |
+| **Persistencia In-App** | Persiste todas las notificaciones en MongoDB para consulta posterior aunque el usuario no estuviera conectado. |
+| **Gestión de Preferencias** | Permite a cada usuario habilitar o deshabilitar tipos de notificación de forma individual. |
+| **Recordatorios Automáticos** | Un scheduler evalúa eventos guardados cada 10 minutos y envía recordatorios a las 24h y a la 1h antes del inicio del evento. |
+| **Consumo de Eventos Asíncrono** | Consume 9 colas RabbitMQ de 4 módulos productores sin acoplamiento sincrónico. |
+| **Dead Letter Queues** | Mensajes malformados se redirigen a DLQs en lugar de generar bucles infinitos de reencola. |
+| **Validación Centralizada** | Reglas de negocio definidas en `domain/validation/` y aplicadas tanto en REST como en consumers RabbitMQ. |
 
 ---
 
@@ -101,18 +102,19 @@ está conectado, lo recibe en tiempo real vía WebSocket; si no, la notificació
 
 ### Modelo Orientado a Eventos
 
-El servicio opera bajo un **modelo orientado a eventos**, consumiendo eventos publicados por otros módulos del sistema mediante colas de mensajería **RabbitMQ con topología de Topic Exchange**, lo que lo desacopla completamente de los módulos productores.
+El servicio opera bajo un **modelo orientado a eventos**, consumiendo eventos publicados por otros módulos mediante colas de mensajería **RabbitMQ con topología de Topic Exchange**, lo que lo desacopla completamente de los módulos productores.
 
 - Cuando el usuario **está conectado**, las notificaciones se entregan en tiempo real vía **WebSocket (STOMP)**.
 - Cuando el usuario **no está conectado**, quedan persistidas en **MongoDB** para su consulta posterior (modelo in-app).
 
 ### Módulos con los que se integra
 
-| Módulo Productor | Tipo de Integración | Evento que produce |
-|---|---|---|
-| **Módulo de Parches** | RabbitMQ (asíncrono) | Invitación a parche, parche cercano |
-| **Módulo Social** | RabbitMQ (asíncrono) | Solicitud de conexión |
-| **Módulos externos** | OpenFeign (sincrónico) | Consultas puntuales cuando se requiere |
+| Módulo Productor | Exchange | Tipo de Integración | Eventos que produce |
+|---|---|---|---|
+| **Módulo de Auth** | `auth.exchange` | RabbitMQ (asíncrono) | OTP verification, OTP resend, Password reset |
+| **Módulo de Parches** | `parche.exchange` | RabbitMQ (asíncrono) | Invitación a parche, parche cercano |
+| **Módulo Social** | `social.exchange` | RabbitMQ (asíncrono) | Solicitud de conexión |
+| **Módulo Hangout** | `hangout.events` | RabbitMQ (asíncrono) | Invitación aceptada, invitación enviada, miembro unido |
 
 ### Patrones Utilizados
 
@@ -120,13 +122,14 @@ El servicio opera bajo un **modelo orientado a eventos**, consumiendo eventos pu
 |---|---|
 | **Ports & Adapters (Hexagonal)** | El dominio define interfaces (puertos); la infraestructura provee implementaciones (adaptadores) |
 | **Event-Driven** | El servicio reacciona a eventos publicados en RabbitMQ sin acoplamiento con los productores |
+| **Dead Letter Queue** | Mensajes rechazados se redirigen al exchange `notification.dlx` para evitar bucles de reencola |
 | **Repository Pattern** | Abstracción de persistencia mediante interfaces de repositorio en el dominio |
 | **DTO Pattern** | Objetos de transferencia de datos para desacoplar la API del dominio interno |
 | **Scheduler Pattern** | Job periódico cada 10 minutos para evaluación y envío de recordatorios de eventos |
 
 ### Estilo de Arquitectura Detallado
 
-El microservicio implementa **Arquitectura Hexagonal (Ports & Adapters)** combinada con principios de **Clean Architecture**, organizada en cuatro capas:
+El microservicio implementa **Arquitectura Hexagonal (Ports & Adapters)** organizada en cuatro capas:
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
@@ -139,6 +142,7 @@ El microservicio implementa **Arquitectura Hexagonal (Ports & Adapters)** combin
 ├──────────────────────────────────────────────────────────────┤
 │  DOMAIN (Núcleo — sin dependencias externas)                 │
 │  Entities · Enums · Ports/In · Ports/Out · Exceptions        │
+│  Validation (NotificationRules · EventDtoValidator)          │
 ├──────────────────────────────────────────────────────────────┤
 │  INFRASTRUCTURE (Adaptadores de Salida)                      │
 │  MongoDB Repos · WebSocket Adapter · Email Adapter           │
@@ -172,10 +176,10 @@ El servicio utiliza tres colecciones independientes en MongoDB Atlas:
 |---|---|---|
 | _id | ObjectId | ID generado por MongoDB |
 | userId | String | Usuario destino |
-| type | Enum | Tipo de notificación |
+| type | Enum | Tipo de notificación (`NotificationType`) |
 | channel | Enum | `IN_APP` / `EMAIL` |
-| title | String | Título visible |
-| body | String | Cuerpo del mensaje |
+| title | String | Título visible (máx. 80 caracteres) |
+| body | String | Cuerpo del mensaje (máx. 200 caracteres) |
 | read | Boolean | Estado de lectura |
 | referenceId | String | Recurso relacionado (opcional) |
 | createdAt | DateTime | Fecha de creación |
@@ -199,7 +203,7 @@ El servicio utiliza tres colecciones independientes en MongoDB Atlas:
 |---|---|---|
 | userId | String | Usuario que guardó el evento |
 | eventId | String | Identificador del evento |
-| eventDate | DateTime | Fecha del evento |
+| eventDate | DateTime | Fecha del evento (máx. 365 días en el futuro) |
 | reminded24h | Boolean | Si ya se envió el recordatorio de 24h |
 | reminded1h | Boolean | Si ya se envió el recordatorio de 1h |
 
@@ -215,8 +219,8 @@ El servicio utiliza tres colecciones independientes en MongoDB Atlas:
 
 ![Diagrama de Componentes](docs/imagenes/PDCE.drawio.png)
 
-- **Entrypoints:** `NotificationController`, `EventReminderController`, `NotificationWebSocketController` (REST) y `ParcheNotificationConsumer`, `SocialNotificationConsumer` (RabbitMQ).
-- **Puertos de entrada (ports/in):** Interfaces que definen los casos de uso del dominio.
+- **Entrypoints:** `NotificationController`, `EventReminderController`, `NotificationWebSocketController` (REST) y `AuthNotificationConsumer`, `ParcheNotificationConsumer`, `SocialNotificationConsumer`, `HangoutNotificationConsumer` (RabbitMQ).
+- **Puertos de entrada (ports/in):** Interfaces que definen los 7 casos de uso del dominio.
 - **Casos de uso (application):** Implementaciones que orquestan la lógica, verifican preferencias y despachan por canal.
 - **Puertos de salida (ports/out):** `NotificationRepository`, `PreferencesRepository`, `EventReminderRepository`, `NotificationDeliveryPort`.
 - **Adaptadores:** Implementaciones MongoDB y WebSocket/Email de los puertos de salida.
@@ -240,9 +244,9 @@ Crea y entrega una notificación a un usuario. Si el usuario está conectado ví
 | Campo | Tipo | Restricciones | Descripción |
 |---|---|---|---|
 | userId | String | Obligatorio | Identificador del usuario destino |
-| type | Enum | Obligatorio | Tipo de notificación (ver tipos disponibles) |
-| title | String | Obligatorio | Título visible de la notificación |
-| body | String | Obligatorio | Cuerpo del mensaje |
+| type | Enum | Obligatorio | Tipo de notificación (ver `NotificationType`) |
+| title | String | Obligatorio, máx. 80 chars | Título visible de la notificación |
+| body | String | Obligatorio, máx. 200 chars | Cuerpo del mensaje |
 | referenceId | String | Opcional | ID del recurso que originó la notificación |
 
 **Response Body:**
@@ -267,8 +271,8 @@ Crea y entrega una notificación a un usuario. Si el usuario está conectado ví
 {
   "userId": "user-123",
   "type": "PARCHE_INVITATION",
-  "title": "Te invitaron a un parche",
-  "body": "Santiago te invitó a: Parche de cálculo",
+  "title": "You were invited to a parche",
+  "body": "Santiago invited you to: Study parche",
   "referenceId": "parche-456"
 }
 
@@ -278,28 +282,28 @@ Crea y entrega una notificación a un usuario. Si el usuario está conectado ví
   "userId": "user-123",
   "type": "PARCHE_INVITATION",
   "channel": "IN_APP",
-  "title": "Te invitaron a un parche",
-  "body": "Santiago te invitó a: Parche de cálculo",
+  "title": "You were invited to a parche",
+  "body": "Santiago invited you to: Study parche",
   "read": false,
   "referenceId": "parche-456",
   "createdAt": "2026-04-15T10:30:00"
 }
 ```
 
-**Caso de exito:**
-1. El sistema valida que `userId`, `type` y `body` no estén vacíos.
+**Caso de éxito:**
+1. El sistema valida los campos mediante Jakarta Bean Validation.
 2. Se consultan las preferencias del usuario. Si el tipo está deshabilitado, se rechaza.
-3. Se determina el canal (`IN_APP` si el userId no contiene `@`, `EMAIL` si sí).
-4. La notificación se persiste en MongoDB.
-5. Se entrega via el adaptador correspondiente al canal.
-6. Se retorna `201 CREATED` con la notificación creada.
+3. La notificación se persiste en MongoDB.
+4. Se intenta entrega vía WebSocket; si el usuario no está conectado, queda persistida.
+5. Se retorna `201 CREATED` con la notificación creada.
 
-**Casos de errores:**
+**Casos de error:**
 
 | Código HTTP | Escenario | Mensaje |
 |---|---|---|
-| 400 | Campos obligatorios vacíos | `"el campo userId es obligatorio"` |
-| 409 | Tipo deshabilitado en preferencias | `"El tipo de notificación NEARBY_PARCHE está deshabilitado para el usuario user-123."` |
+| 400 | Campos obligatorios vacíos o inválidos | Detalle de la violación de validación |
+| 400 | Título supera 80 caracteres o body supera 200 | `"title: size must be between 0 and 80"` |
+| 409 | Tipo deshabilitado en preferencias | `"Notification type NEARBY_PARCHE is disabled for user user-123."` |
 | 500 | Error de persistencia | Error genérico del servidor |
 
 ---
@@ -314,18 +318,18 @@ Retorna las notificaciones del usuario autenticado de forma paginada, ordenadas 
 
 **Query Params:**
 
-| Parámetro | Tipo | Default | Descripción |
-|---|---|---|---|
-| page | int | 0 | Número de página (base 0) |
-| size | int | 20 | Tamaño de página |
+| Parámetro | Tipo | Default | Restricciones | Descripción |
+|---|---|---|---|---|
+| page | int | 0 | `>= 0` | Número de página (base 0) |
+| size | int | 20 | `>= 1, <= 100` | Tamaño de página |
 
-**Response:** `200 OK` — `List<NotificationResponse>` (misma estructura que POST /api/notifications)
+**Response:** `200 OK` — `List<NotificationResponse>`
 
 **Errores:**
 
 | Código HTTP | Escenario |
 |---|---|
-| 400 | Header `X-User-Id` ausente o parámetros inválidos |
+| 400 | Header `X-User-Id` ausente o parámetros fuera de rango |
 
 ---
 
@@ -376,7 +380,7 @@ Marca todas las notificaciones del usuario como leídas en una sola operación.
 
 #### 6️⃣ Consultar Preferencias de Notificación
 
-Retorna las preferencias de notificación del usuario. Si no existen registros previos, devuelve los valores por defecto.
+Retorna las preferencias de notificación del usuario. Si no existen registros previos, devuelve los valores por defecto (todos habilitados).
 
 **Endpoint:** `GET /api/notifications/preferences`
 
@@ -434,6 +438,8 @@ Registra un recordatorio para un evento guardado. El scheduler enviará notifica
 }
 ```
 
+> ⚠️ `eventDate` debe ser una fecha futura dentro de los próximos **365 días**.
+
 **Response:** `201 CREATED`
 ```json
 {
@@ -450,21 +456,44 @@ Registra un recordatorio para un evento guardado. El scheduler enviará notifica
 
 | Código HTTP | Escenario |
 |---|---|
-| 400 | Fecha en el pasado o campos obligatorios ausentes |
+| 400 | Fecha en el pasado, fecha mayor a 365 días, o campos obligatorios ausentes |
 
 ---
 
 ### Colas de Mensajería (RabbitMQ)
 
-El servicio actúa como **consumidor** en la arquitectura de mensajería del sistema. Los otros módulos publican eventos y este servicio los transforma en notificaciones.
+El servicio actúa exclusivamente como **consumidor** en la arquitectura de mensajería. Los otros módulos publican eventos y este servicio los transforma en notificaciones. Cada cola tiene una **Dead Letter Queue (DLQ)** asociada a través del exchange `notification.dlx`.
 
-| Consumer | Exchange | Cola | Routing Key | Evento | Payload esperado |
-|---|---|---|---|---|---|
-| `ParcheNotificationConsumer` | `parche.exchange` | `parche.invitation.queue` | `parche.invitation` | Invitación a parche | `{ userId, parcheId, inviterName, parcheName }` |
-| `ParcheNotificationConsumer` | `parche.exchange` | `parche.nearby.queue` | `parche.nearby` | Parche cercano | `{ userId, parcheId, parcheName, distance }` |
-| `SocialNotificationConsumer` | `social.exchange` | `social.connection.queue` | `social.connection` | Solicitud de conexión | `{ userId, requesterId, requesterName }` |
+#### `AuthNotificationConsumer`
 
-> ⚠️ **Nota:** Completar el payload exacto de cada evento una vez estén definidos los contratos con los módulos productores.
+| Cola | Exchange | Routing Key | Evento | DLQ |
+|---|---|---|---|---|
+| `auth.otp.verification.queue` | `auth.exchange` | `auth.otp.verification` | OTP enviado para verificación de identidad | `auth.otp.verification.queue.dlq` |
+| `auth.otp.resend.queue` | `auth.exchange` | `auth.otp.resend` | Reenvío de OTP solicitado | `auth.otp.resend.queue.dlq` |
+| `auth.password.reset.queue` | `auth.exchange` | `auth.password.reset` | Código de recuperación de contraseña | `auth.password.reset.queue.dlq` |
+
+#### `ParcheNotificationConsumer`
+
+| Cola | Exchange | Routing Key | Evento | DLQ |
+|---|---|---|---|---|
+| `parche.invitation.queue` | `parche.exchange` | `parche.invitation` | Usuario invitado a un parche | `parche.invitation.queue.dlq` |
+| `parche.nearby.queue` | `parche.exchange` | `parche.nearby` | Parche cercano a la ubicación del usuario | `parche.nearby.queue.dlq` |
+
+#### `SocialNotificationConsumer`
+
+| Cola | Exchange | Routing Key | Evento | DLQ |
+|---|---|---|---|---|
+| `social.connection.queue` | `social.exchange` | `social.connection` | Solicitud de conexión recibida | `social.connection.queue.dlq` |
+
+#### `HangoutNotificationConsumer`
+
+| Cola | Exchange | Routing Key | Evento | DLQ |
+|---|---|---|---|---|
+| `hangout.invitation.accepted.queue` | `hangout.events` | `invitation.accepted` | Invitación a hangout aceptada | `hangout.invitation.accepted.queue.dlq` |
+| `hangout.invitation.sent.queue` | `hangout.events` | `invitation.sent` | Invitación a hangout enviada | `hangout.invitation.sent.queue.dlq` |
+| `hangout.member.joined.queue` | `hangout.events` | `member.joined` | Nuevo miembro unido al hangout | `hangout.member.joined.queue.dlq` |
+
+> **Nota sobre DLQ:** Si un mensaje no puede procesarse (payload malformado, violación de validación), se redirige automáticamente a la DLQ correspondiente. `spring.rabbitmq.listener.simple.default-requeue-rejected=false` garantiza que los mensajes rechazados no se reencolen infinitamente.
 
 ---
 
@@ -486,7 +515,7 @@ const stompClient = Stomp.over(socket);
 stompClient.connect({}, () => {
   stompClient.subscribe(`/topic/notifications/${userId}`, (message) => {
     const notification = JSON.parse(message.body);
-    console.log('Nueva notificación:', notification);
+    console.log('New notification:', notification);
   });
 });
 ```
@@ -495,14 +524,15 @@ stompClient.connect({}, () => {
 
 ### ⚠️ Manejo de Errores
 
-El servicio implementa un **handler centralizado** con `@RestControllerAdvice` en la capa `entrypoints/advice`.
+El servicio implementa un **handler centralizado** con `@RestControllerAdvice` en `entrypoints/advice/NotificationExceptionHandler`.
 
-| Código HTTP | Tipo | Escenario |
+| Código HTTP | Tipo de Excepción | Escenario |
 |---|---|---|
-| 400 | `InvalidNotificationException` | Campos obligatorios ausentes (`userId`, `type`, `body`) |
-| 400 | `MethodArgumentNotValidException` | Validaciones de DTOs fallidas |
+| 400 | `InvalidNotificationException` | Payload inválido en consumer RabbitMQ |
+| 400 | `MethodArgumentNotValidException` | Validaciones `@Valid` fallidas en `@RequestBody` |
+| 400 | `ConstraintViolationException` | Validaciones `@Min`/`@Max` fallidas en `@RequestParam` o `@PathVariable` |
 | 404 | `NotificationNotFoundException` | Notificación no encontrada o no pertenece al usuario |
-| 409 | `NotificationTypeDisabledException` | El tipo de notificación está deshabilitado en las preferencias del usuario |
+| 409 | `NotificationTypeDisabledException` | El tipo está deshabilitado en las preferencias del usuario |
 | 500 | `Exception` (genérico) | Error inesperado del servidor |
 
 **Estructura del response de error:**
@@ -513,6 +543,22 @@ El servicio implementa un **handler centralizado** con `@RestControllerAdvice` e
   "timestamp": "2026-04-15T10:30:00"
 }
 ```
+
+### 📋 Tipos de Notificación (`NotificationType`)
+
+| Valor | Descripción |
+|---|---|
+| `CONNECTION_REQUEST` | Solicitud de conexión recibida |
+| `PARCHE_MESSAGE` | Nuevo mensaje en un parche |
+| `EVENT_REMINDER` | Recordatorio automático 24h / 1h antes del evento |
+| `NEARBY_PARCHE` | Parche cercano a la ubicación del usuario |
+| `ACHIEVEMENT_UNLOCKED` | Logro desbloqueado |
+| `PARCHE_INVITATION` | Invitación a unirse a un parche |
+| `OTP_VERIFICATION` | Código OTP de verificación de identidad |
+| `PASSWORD_RESET` | Código de recuperación de contraseña |
+| `INVITATION_ACCEPTED` | Invitación a hangout aceptada |
+| `INVITATION_SENT` | Invitación a hangout enviada |
+| `MEMBER_JOINED` | Nuevo miembro unido al hangout |
 
 ---
 
@@ -530,7 +576,7 @@ El servicio implementa un **handler centralizado** con `@RestControllerAdvice` e
 |---|---|
 | `SendNotificationUseCaseImplTest` | Envío exitoso, campos vacíos, tipo deshabilitado |
 | `GetNotificationsUseCaseImplTest` | Paginación y consulta por usuario |
-| `GetUnreadCountUseCaseImplTest` | Conteo de no leídas |
+| `GetUnreadCountUseCaseImplTest` | Conteo de notificaciones no leídas |
 | `MarkAsReadUseCaseImplTest` | Marcar una y todas como leídas |
 | `NotificationMapperTest` | Transformaciones entre dominio y DTOs |
 
@@ -542,30 +588,32 @@ mvn clean test
 
 # Ejecutar una prueba específica
 mvn test -Dtest=SendNotificationUseCaseImplTest
+
+# Generar reporte de cobertura JaCoCo
+mvn clean test jacoco:report
 ```
 
 ### Criterios de aceptación
 
-- ✅ Cobertura mínima del **80%** en servicios y casos de uso
+- ✅ Cobertura mínima del **85%** global
+- ✅ Cobertura mínima del **95%** en casos de uso
 - ✅ Todas las pruebas en estado **PASSED**
 - ✅ Pruebas de casos felices **y** casos de error implementados
 
-> ⚠️ **Pendiente:** Agregar capturas de pantalla o reporte de ejecución de pruebas (resultado del `mvn test`).
-
+![Jacoco.png](docs/Jacoco.png)
 ---
 
 ## 8. 📈 Evidencia del Análisis de Cobertura
 
-Las métricas de cobertura se generan con **JaCoCo**.
+Las métricas de cobertura se generan con **JaCoCo 0.8.10**.
 
 ```bash
-# Generar reporte de cobertura JaCoCo
 mvn clean test jacoco:report
 ```
 
 El reporte HTML estará disponible en: `target/site/jacoco/index.html`
 
-> ⚠️ **Pendiente:** Agregar captura de pantalla del reporte JaCoCo mostrando el porcentaje de cobertura alcanzado.
+![Jacoco.png](docs/Jacoco.png)
 
 ---
 
@@ -590,8 +638,8 @@ docker-compose up -d rabbitmq mongodb
 mvn spring-boot:run
 ```
 
-📍 **URL Local:** `http://localhost:8082`
-📚 **Swagger UI:** `http://localhost:8082/swagger-ui.html`
+📍 **URL Local:** `http://localhost:8082`  
+📚 **Swagger UI:** `http://localhost:8082/swagger-ui.html`  
 📡 **WebSocket:** `ws://localhost:8082/ws/notifications`
 
 ### Opción 2: Ejecución completa con Docker
@@ -604,9 +652,16 @@ docker-compose up --build -d
 
 | Variable | Descripción | Default |
 |---|---|---|
-| `SPRING_DATA_MONGODB_URI` | URI de conexión a MongoDB Atlas | Configurado en `application.properties` |
-| `SPRING_RABBITMQ_HOST` | Host del broker RabbitMQ | `localhost` |
-| `SPRING_RABBITMQ_PORT` | Puerto RabbitMQ | `5672` |
+| `MONGODB_URI` | URI de conexión a MongoDB Atlas | Requerido |
+| `MONGODB_DATABASE` | Nombre de la base de datos | `notification_db` |
+| `RABBITMQ_HOST` | Host del broker RabbitMQ | Requerido |
+| `RABBITMQ_PORT` | Puerto RabbitMQ | `5671` |
+| `RABBITMQ_USERNAME` | Usuario RabbitMQ | Requerido |
+| `RABBITMQ_PASSWORD` | Contraseña RabbitMQ | Requerido |
+| `RABBITMQ_VHOST` | Virtual host RabbitMQ | Requerido |
+| `RABBITMQ_SSL` | Habilitar SSL en RabbitMQ | `true` |
+| `MAIL_USERNAME` | Usuario SMTP para envío de correos | Requerido |
+| `MAIL_PASSWORD` | Contraseña SMTP | Requerido |
 | `SERVER_PORT` | Puerto del servicio | `8082` |
 
 ---
@@ -615,17 +670,17 @@ docker-compose up --build -d
 
 El proyecto cuenta con un pipeline de **GitHub Actions** que se ejecuta automáticamente en cada push y pull request.
 
-> ⚠️ **Pendiente:** Agregar capturas de pantalla o badges del pipeline de GitHub Actions mostrando el estado del build (verde/rojo), resultados de pruebas y despliegue.
+![CD.png](docs/CD.png)
+
+![CI.png](docs/CI.png)
 
 ---
 
 ## 11. 🌐 Link Expuesto en Azure/AWS con Swagger
 
-> ⚠️ **Pendiente:** Agregar el link público del servicio desplegado en Azure/AWS junto con la URL de Swagger UI del entorno de producción.
-
 Ejemplo esperado:
-- **API Base URL:** `https://<dominio>/api`
-- **Swagger UI:** `https://<dominio>/swagger-ui.html`
+- **API Base URL:** app-patricia-notification-b4d2hcd0fqd7bkcm.canadacentral-01.azurewebsites.net
+- **Swagger UI:** https://app-patricia-notification-b4d2hcd0fqd7bkcm.canadacentral-01.azurewebsites.net/swagger-ui/index.html#/
 
 ---
 
@@ -644,30 +699,35 @@ squirtle-squad-notification-service/
 │   │   │   │   ├── 📁 model/                       # Entidades: Notification, NotificationPreferences, EventReminder
 │   │   │   │   │   └── 📁 enums/                   # NotificationType, NotificationChannel
 │   │   │   │   ├── 📁 ports/
-│   │   │   │   │   ├── 📁 in/                      # Interfaces de casos de uso (puertos de entrada)
-│   │   │   │   │   └── 📁 out/                     # Interfaces de repositorios y entrega (puertos de salida)
-│   │   │   │   └── 📁 exceptions/                  # Excepciones de dominio
+│   │   │   │   │   ├── 📁 in/                      # Interfaces de casos de uso (7 puertos de entrada)
+│   │   │   │   │   └── 📁 out/                     # Interfaces de repositorios y entrega (4 puertos de salida)
+│   │   │   │   ├── 📁 exceptions/                  # InvalidNotification, NotificationNotFound, TypeDisabled
+│   │   │   │   └── 📁 validation/                  # NotificationRules, EventDtoValidator, MaxFutureDays
 │   │   │   │
 │   │   │   ├── 📁 application/                     # 🔵 APLICACIÓN
-│   │   │   │   ├── 📁 usecase/                     # Implementaciones de los casos de uso
-│   │   │   │   ├── 📁 service/                     # EventReminderService (scheduler)
+│   │   │   │   ├── 📁 usecase/                     # 7 implementaciones de casos de uso
+│   │   │   │   ├── 📁 service/                     # EventReminderService (scheduler cada 10 min)
 │   │   │   │   ├── 📁 dto/
-│   │   │   │   │   ├── 📁 request/                 # DTOs de entrada
-│   │   │   │   │   └── 📁 response/                # DTOs de salida
+│   │   │   │   │   ├── 📁 request/                 # SendNotificationRequest, CreateEventReminderRequest, UpdatePreferencesRequest
+│   │   │   │   │   └── 📁 response/                # NotificationResponse, PreferencesResponse, EventReminderResponse, UnreadCountResponse
 │   │   │   │   └── 📁 mapper/                      # NotificationMapper
 │   │   │   │
 │   │   │   ├── 📁 entrypoints/                     # 🟠 PUERTOS DE ENTRADA
-│   │   │   │   ├── 📁 rest/controller/             # NotificationController, EventReminderController
+│   │   │   │   ├── 📁 rest/controller/             # NotificationController, EventReminderController, NotificationWebSocketController
 │   │   │   │   ├── 📁 messaging/
-│   │   │   │   │   ├── 📁 consumer/                # ParcheNotificationConsumer, SocialNotificationConsumer
-│   │   │   │   │   └── 📁 dto/                     # DTOs de eventos RabbitMQ
-│   │   │   │   └── 📁 advice/                      # NotificationExceptionHandler
+│   │   │   │   │   ├── 📁 consumer/                # AuthNotificationConsumer, ParcheNotificationConsumer,
+│   │   │   │   │   │                               # SocialNotificationConsumer, HangoutNotificationConsumer
+│   │   │   │   │   └── 📁 dto/                     # 9 DTOs de eventos RabbitMQ
+│   │   │   │   └── 📁 advice/                      # NotificationExceptionHandler (@RestControllerAdvice)
 │   │   │   │
 │   │   │   └── 📁 infrastructure/                  # 🔴 INFRAESTRUCTURA
 │   │   │       ├── 📁 adapters/
-│   │   │       │   ├── 📁 adapter/                 # WebSocketNotificationAdapter, EmailNotificationAdapter
-│   │   │       │   └── 📁 persistence/             # Repositorios Mongo, documentos y mappers de persistencia
-│   │   │       └── 📁 config/                      # RabbitMQConfig, WebSocketConfig, MongoConfig, SchedulerConfig
+│   │   │       │   ├── 📁 adapter/                 # WebSocketNotificationAdapter, EmailNotificationAdapter,
+│   │   │       │   │                               # NotificationRepositoryAdapter, PreferencesRepositoryAdapter,
+│   │   │       │   │                               # EventReminderRepositoryAdapter
+│   │   │       │   └── 📁 persistence/             # Documentos MongoDB, mappers de persistencia, repositorios Spring Data
+│   │   │       └── 📁 config/                      # RabbitMQConfig, WebSocketConfig, MongoConfig,
+│   │   │                                           # SecurityConfig, OpenApiConfig, SchedulerConfig
 │   │   │
 │   │   └── 📁 resources/
 │   │       └── application.properties
@@ -684,13 +744,14 @@ squirtle-squad-notification-service/
 
 ## 13. 📝 Código Documentado
 
-> ⚠️ **Pendiente:** Agregar ejemplos representativos del código documentado con Javadoc en las clases principales (casos de uso, puertos, controladores), o un enlace al sitio de documentación generado.
+Todo el código del microservicio está documentado con **JavaDoc en inglés**, incluyendo:
 
-El código debe estar documentado con **Javadoc** en:
-- Interfaces de puertos (`ports/in`, `ports/out`)
-- Implementaciones de casos de uso (`application/usecase`)
-- Controladores REST (`entrypoints/rest/controller`)
-- Consumers de RabbitMQ (`entrypoints/messaging/consumer`)
+- **Dominio:** Entidades, enums, excepciones, puertos de entrada y salida, reglas de validación
+- **Aplicación:** Interfaces y implementaciones de casos de uso, DTOs (con `@Schema` Swagger), mapper
+- **Entrypoints:** Controladores REST (con `@Tag`, `@Operation`, `@ApiResponse`), consumers RabbitMQ, exception handler
+- **Infraestructura:** Adaptadores, documentos MongoDB, mappers de persistencia, todas las clases de configuración
+
+Las anotaciones Swagger (`@Tag`, `@Operation`, `@ApiResponse`, `@Schema`) están completamente en inglés y son accesibles desde `http://localhost:8082/swagger-ui.html`.
 
 ---
 
@@ -698,12 +759,13 @@ El código debe estar documentado con **Javadoc** en:
 
 | Servicio Externo | Tipo de Conexión | Propósito |
 |---|---|---|
-| **MongoDB Atlas** | Driver Spring Data MongoDB | Persistencia de notificaciones, preferencias y recordatorios |
-| **RabbitMQ** | Spring AMQP | Consumo de eventos de los módulos de Parches y Social |
-| **SMTP Server** | JavaMailSender (Spring Mail) | Envío de notificaciones por correo electrónico |
-| **Módulos internos** | OpenFeign (HTTP sincrónico) | Consultas puntuales a otros microservicios cuando se requiere |
+| **MongoDB Atlas** | Spring Data MongoDB | Persistencia de notificaciones, preferencias y recordatorios |
+| **RabbitMQ** | Spring AMQP (SSL, puerto 5671) | Consumo de eventos de Auth, Parches, Social y Hangout |
+| **SMTP (Gmail)** | JavaMailSender — puerto 587, STARTTLS | Envío de notificaciones por correo electrónico |
 
-> ⚠️ **Pendiente:** Agregar detalles de configuración de cada servicio externo (hosts, puertos, credenciales en variables de entorno).
+### Configuración requerida
+
+Todas las credenciales se inyectan mediante variables de entorno (ver sección [Variables de Entorno](#variables-de-entorno)). No hay valores sensibles hardcodeados en el código.
 
 ---
 
@@ -727,7 +789,7 @@ feature/[NombreFuncionalidad]
 Ejemplos:
   feature/NotificationService
   feature/Inicializacion
-  feature/setup-devops
+  feature/CalidadCodigo
 ```
 
 ### Convenciones de Commits
@@ -739,6 +801,7 @@ Ejemplos:
   Feat: Configuracion Email
   Feat: Correcion Consumer Auth
   Feat: Configuracion Rabbit
+  Feat: Despliegue
 ```
 
 ### Etapas del Pipeline de Desarrollo
@@ -787,7 +850,7 @@ jobs:
     - docker push <registry>/notification-service:latest
 
   deploy:
-    - Deploy a Azure/AWS
+    - Deploy a Azure
     - Health check del servicio desplegado
 ```
 

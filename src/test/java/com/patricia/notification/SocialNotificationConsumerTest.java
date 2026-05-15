@@ -2,6 +2,7 @@ package com.patricia.notification;
 
 import com.patricia.notification.domain.model.enums.NotificationType;
 import com.patricia.notification.domain.ports.in.SendNotificationUseCase;
+import com.patricia.notification.domain.validation.EventDtoValidator;
 import com.patricia.notification.entrypoints.messaging.consumer.SocialNotificationConsumer;
 import com.patricia.notification.entrypoints.messaging.dto.ConnectionRequestEventDto;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,9 @@ class SocialNotificationConsumerTest {
 
     @Mock
     private SendNotificationUseCase sendNotificationUseCase;
+
+    @Mock
+    private EventDtoValidator eventDtoValidator;
 
     @InjectMocks
     private SocialNotificationConsumer consumer;

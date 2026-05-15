@@ -5,15 +5,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
-@Schema(description = "Request para actualizar una preferencia de notificación")
+/**
+ * Request payload for enabling or disabling a specific notification type.
+ */
+@Schema(description = "Request payload for updating a notification preference")
 @Getter
 public class UpdatePreferencesRequest {
 
-    @Schema(description = "Tipo de notificación a configurar", example = "PARCHE_MESSAGE")
+    @Schema(description = "Notification type to configure", example = "PARCHE_MESSAGE")
     @NotNull
     private NotificationType type;
 
-    @Schema(description = "true para habilitar, false para deshabilitar", example = "false")
+    @Schema(description = "true to enable, false to disable", example = "false")
     @NotNull
     private Boolean enabled;
 }

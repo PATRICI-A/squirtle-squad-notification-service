@@ -9,6 +9,13 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
 
+/**
+ * Delivery adapter that sends notifications via SMTP email.
+ *
+ * <p>Implements {@link NotificationDeliveryPort} for the {@link NotificationChannel#EMAIL} channel.
+ * Email delivery failures are caught and logged without propagating the exception,
+ * allowing the application to continue operating when the mail server is unavailable.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -16,6 +23,12 @@ public class EmailNotificationAdapter implements NotificationDeliveryPort {
 
     private final JavaMailSender mailSender;
 
+    /**
+     * Sends the notification as a plain-text email to {@code notification.getRecipientEmail()}.
+     * Logs a warning on delivery failure without rethrowing.
+     *
+     * @param notification the notification to deliver
+     */
     @Override
     public void deliver(Notification notification) {
         try {

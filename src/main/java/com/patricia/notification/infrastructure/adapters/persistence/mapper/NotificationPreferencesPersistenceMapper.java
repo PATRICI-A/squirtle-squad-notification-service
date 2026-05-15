@@ -6,9 +6,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Maps between the {@link NotificationPreferences} domain model and the
+ * {@link NotificationPreferencesDocument} MongoDB document.
+ */
 @Component
 public class NotificationPreferencesPersistenceMapper {
 
+    /**
+     * Converts a domain {@link NotificationPreferences} to a {@link NotificationPreferencesDocument}.
+     *
+     * @param preferences the domain object to convert
+     * @return the corresponding MongoDB document
+     */
     public NotificationPreferencesDocument toDocument(NotificationPreferences preferences) {
         return NotificationPreferencesDocument.builder()
                 .id(preferences.getId() != null ? preferences.getId().toString() : null)
@@ -29,6 +39,12 @@ public class NotificationPreferencesPersistenceMapper {
                 .build();
     }
 
+    /**
+     * Converts a {@link NotificationPreferencesDocument} from MongoDB to its domain representation.
+     *
+     * @param doc the MongoDB document to convert
+     * @return the corresponding domain {@link NotificationPreferences}
+     */
     public NotificationPreferences toDomain(NotificationPreferencesDocument doc) {
         return NotificationPreferences.builder()
                 .id(doc.getId() != null ? UUID.fromString(doc.getId()) : null)

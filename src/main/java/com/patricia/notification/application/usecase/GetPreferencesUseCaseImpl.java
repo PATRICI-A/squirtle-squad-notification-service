@@ -9,6 +9,12 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Retrieves a user's notification preferences, returning defaults when no record exists.
+ *
+ * <p>Default preferences: all types enabled except {@code NEARBY_PARCHE} (opt-in).
+ * Default preferences are not persisted — they are only returned in-memory.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class GetPreferencesUseCaseImpl implements GetPreferencesUseCase {

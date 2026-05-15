@@ -12,6 +12,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Adapter that implements {@link EventReminderRepository} using MongoDB.
+ *
+ * <p>Translates between domain {@link EventReminder} objects and
+ * {@link com.patricia.notification.infrastructure.adapters.persistence.entity.EventReminderDocument}
+ * MongoDB documents via {@link EventReminderPersistenceMapper}.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class EventReminderRepositoryAdapter implements EventReminderRepository {

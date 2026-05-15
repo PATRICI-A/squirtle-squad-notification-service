@@ -17,6 +17,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Orchestrates notification creation and delivery.
+ *
+ * <p>Execution flow:
+ * <ol>
+ *   <li>Resolves the user's preferences (uses defaults when no record exists).</li>
+ *   <li>Rejects the request if the notification type is disabled for that user.</li>
+ *   <li>Persists the notification.</li>
+ *   <li>Delegates delivery to the first {@link NotificationDeliveryPort} whose channel
+ *       matches the resolved channel ({@code IN_APP}).</li>
+ * </ol>
+ * </p>
+ */
 @Component
 @RequiredArgsConstructor
 public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
@@ -30,13 +43,13 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
                                 String title, String body, UUID referenceId) {
 
         if (userId == null) {
-            throw new InvalidNotificationException("el campo userId es obligatorio");
+            throw new InvalidNotificationException("userId no puede ser nulo");
         }
         if (type == null) {
-            throw new InvalidNotificationException("el campo type es obligatorio");
+            throw new InvalidNotificationException("type no puede ser nulo");
         }
         if (body == null || body.isBlank()) {
-            throw new InvalidNotificationException("el campo body no puede estar vacío");
+            throw new InvalidNotificationException("body no puede estar vacío");
         }
 
         NotificationChannel channel = NotificationChannel.IN_APP;
@@ -70,6 +83,10 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
         return saved;
     }
 
+    /**
+     * Builds the default preferences applied when a user has no saved configuration.
+     * All types are enabled except {@code NEARBY_PARCHE}, which is opt-in.
+     */
     private NotificationPreferences buildDefaultPreferences(UUID userId) {
         return NotificationPreferences.builder()
                 .userId(userId)

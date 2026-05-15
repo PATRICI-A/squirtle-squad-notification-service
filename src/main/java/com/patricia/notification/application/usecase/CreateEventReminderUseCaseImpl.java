@@ -9,6 +9,12 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Creates and persists a new event reminder with both reminder flags set to {@code false}.
+ *
+ * <p>The {@link com.patricia.notification.application.service.EventReminderService} scheduler
+ * picks up the reminder on its next run and fires notifications at the appropriate times.</p>
+ */
 @Service
 @RequiredArgsConstructor
 public class CreateEventReminderUseCaseImpl implements CreateEventReminderUseCase {
