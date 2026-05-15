@@ -1,5 +1,6 @@
 package com.patricia.notification.entrypoints.messaging.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,8 +13,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberJoinedEventDto {
+    @NotNull
     private UUID capitanId;
+
+    @NotNull
     private UUID estudianteId;
+
+    @NotNull
     private UUID nombreParche;
+
+    @NotNull
     private LocalDateTime timestamp;
 }

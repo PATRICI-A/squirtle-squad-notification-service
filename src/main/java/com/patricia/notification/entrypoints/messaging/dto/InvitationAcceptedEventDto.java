@@ -1,11 +1,10 @@
 package com.patricia.notification.entrypoints.messaging.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.cglib.core.Local;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -14,9 +13,18 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InvitationAcceptedEventDto {
+    @NotNull
     private UUID invitationId;
+
+    @NotNull
     private UUID parcheId;
+
+    @NotNull
     private UUID studentId;
+
+    @NotNull
     private UUID captainId;
+
+    @NotNull
     private LocalDateTime ocurredAt;
 }
