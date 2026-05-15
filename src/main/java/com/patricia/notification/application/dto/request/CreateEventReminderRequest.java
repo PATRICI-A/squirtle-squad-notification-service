@@ -1,5 +1,7 @@
 package com.patricia.notification.application.dto.request;
 
+import com.patricia.notification.domain.validation.MaxFutureDays;
+import com.patricia.notification.domain.validation.NotificationRules;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
@@ -23,5 +25,6 @@ public class CreateEventReminderRequest {
     @Schema(description = "Fecha y hora del evento (futura)", example = "2026-05-02T14:00:00", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     @Future
+    @MaxFutureDays(NotificationRules.MAX_EVENT_FUTURE_DAYS)
     private LocalDateTime eventDate;
 }

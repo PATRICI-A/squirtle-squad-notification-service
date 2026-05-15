@@ -1,6 +1,5 @@
 package com.patricia.notification.application.usecase;
 
-import com.patricia.notification.domain.exceptions.InvalidNotificationException;
 import com.patricia.notification.domain.exceptions.NotificationTypeDisabledException;
 import com.patricia.notification.domain.model.Notification;
 import com.patricia.notification.domain.model.NotificationPreferences;
@@ -28,16 +27,6 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
     @Override
     public Notification execute(UUID userId, NotificationType type,
                                 String title, String body, UUID referenceId) {
-
-        if (userId == null) {
-            throw new InvalidNotificationException("el campo userId es obligatorio");
-        }
-        if (type == null) {
-            throw new InvalidNotificationException("el campo type es obligatorio");
-        }
-        if (body == null || body.isBlank()) {
-            throw new InvalidNotificationException("el campo body no puede estar vacío");
-        }
 
         NotificationChannel channel = NotificationChannel.IN_APP;
 

@@ -18,9 +18,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,6 +39,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Tag(name = "Notificaciones", description = "Gestión de notificaciones in-app del usuario")
+@Validated
 @RestController
 @RequestMapping("/api/notifications")
 @RequiredArgsConstructor
@@ -78,8 +82,8 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getNotifications(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId,
-            @Parameter(description = "Número de página (base 0)", example = "0") @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Tamaño de página", example = "20") @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "Número de página (base 0)", example = "0") @Min(0) @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Tamaño de página", example = "20") @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size) {
 
         List<NotificationResponse> response = getNotificationsUseCase
                 .execute(UUID.fromString(userId), page, size)

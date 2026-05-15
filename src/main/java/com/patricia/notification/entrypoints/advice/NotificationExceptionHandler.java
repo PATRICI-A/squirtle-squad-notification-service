@@ -4,6 +4,7 @@ import com.patricia.notification.domain.exceptions.InvalidNotificationException;
 import com.patricia.notification.domain.exceptions.NotificationDailyLimitException;
 import com.patricia.notification.domain.exceptions.NotificationNotFoundException;
 import com.patricia.notification.domain.exceptions.NotificationTypeDisabledException;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,6 +52,17 @@ public class NotificationExceptionHandler {
                 .map(error -> error.getField() + ": " + error.getDefaultMessage())
                 .findFirst()
                 .orElse("Error de validación");
+        return buildResponse(HttpStatus.BAD_REQUEST, message);
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<Map<String, Object>> handleConstraintViolation(
+            ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .findFirst()
+                .orElse("Parámetro inválido");
         return buildResponse(HttpStatus.BAD_REQUEST, message);
     }
 
