@@ -9,26 +9,38 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Schema(description = "Notificación del usuario")
+/**
+ * Response payload representing a single notification.
+ */
+@Schema(description = "Notification data returned by the API")
 @Getter
 @Builder
 public class NotificationResponse {
-    @Schema(description = "ID único de la notificación", example = "550e8400-e29b-41d4-a716-446655440000")
+
+    @Schema(description = "Unique notification identifier", example = "550e8400-e29b-41d4-a716-446655440000")
     private UUID id;
-    @Schema(description = "ID del usuario destinatario", example = "550e8400-e29b-41d4-a716-446655440001")
+
+    @Schema(description = "ID of the recipient user", example = "550e8400-e29b-41d4-a716-446655440001")
     private UUID userId;
-    @Schema(description = "Tipo de notificación", example = "PARCHE_MESSAGE")
+
+    @Schema(description = "Notification type", example = "PARCHE_MESSAGE")
     private NotificationType type;
-    @Schema(description = "Canal de entrega", example = "IN_APP")
+
+    @Schema(description = "Delivery channel used for this notification", example = "IN_APP")
     private NotificationChannel channel;
-    @Schema(description = "Título de la notificación", example = "Nuevo mensaje en tu parche")
+
+    @Schema(description = "Short summary shown in notification lists", example = "New message in your parche")
     private String title;
-    @Schema(description = "Cuerpo del mensaje", example = "Juan te envió un mensaje en 'Parche del viernes'")
+
+    @Schema(description = "Full notification message", example = "Juan sent a message in 'Friday Parche'")
     private String body;
-    @Schema(description = "Si el usuario ya leyó la notificación", example = "false")
+
+    @Schema(description = "Whether the recipient has viewed this notification", example = "false")
     private boolean read;
-    @Schema(description = "ID de referencia al objeto relacionado (parche, evento, etc.)", example = "550e8400-e29b-41d4-a716-446655440002")
+
+    @Schema(description = "ID of the entity that triggered this notification (parche, event, etc.)", example = "550e8400-e29b-41d4-a716-446655440002")
     private UUID referenceId;
-    @Schema(description = "Fecha y hora de creación", example = "2026-05-01T10:30:00")
+
+    @Schema(description = "Timestamp when the notification was created (ISO 8601)", example = "2026-05-01T10:30:00")
     private LocalDateTime createdAt;
 }

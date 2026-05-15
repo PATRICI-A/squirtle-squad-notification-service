@@ -4,30 +4,47 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
 
-@Schema(description = "Preferencias de notificación del usuario")
+/**
+ * Response payload representing a user's notification preferences.
+ *
+ * <p>Each boolean field corresponds to a notification type. {@code false} means the
+ * user has disabled that category and will not receive notifications of that type.</p>
+ */
+@Schema(description = "User notification preferences")
 @Getter
 @Builder
 public class NotificationPreferencesResponse {
-    @Schema(description = "Notificaciones de solicitud de conexión", example = "true")
+
+    @Schema(description = "Connection request notifications enabled", example = "true")
     private boolean connectionRequest;
-    @Schema(description = "Notificaciones de mensajes en parches", example = "true")
+
+    @Schema(description = "Parche message notifications enabled", example = "true")
     private boolean parcheMessage;
-    @Schema(description = "Recordatorios de eventos", example = "true")
+
+    @Schema(description = "Event reminder notifications enabled", example = "true")
     private boolean eventReminder;
-    @Schema(description = "Notificaciones de parches cercanos", example = "false")
+
+    @Schema(description = "Nearby parche notifications enabled", example = "false")
     private boolean nearbyParche;
-    @Schema(description = "Notificaciones de logros desbloqueados", example = "true")
+
+    @Schema(description = "Achievement unlocked notifications enabled", example = "true")
     private boolean achievementUnlocked;
-    @Schema(description = "Notificaciones de invitaciones a parches", example = "true")
+
+    @Schema(description = "Parche invitation notifications enabled", example = "true")
     private boolean parcheInvitation;
-    @Schema(description = "Notificaciones de verificación OTP", example = "true")
+
+    @Schema(description = "OTP verification notifications enabled", example = "true")
     private boolean otpVerification;
-    @Schema(description = "Notificaciones de restablecimiento de contraseña", example = "true")
+
+    @Schema(description = "Password reset notifications enabled", example = "true")
     private boolean passwordReset;
-    @Schema(description = "Notificaciones de invitación aceptada", example = "true")
+
+    @Schema(description = "Invitation accepted notifications enabled", example = "true")
     private boolean invitationAccepted;
-    @Schema(description = "Notificaciones de invitación enviada", example = "true")
+
+    @Schema(description = "Invitation sent notifications enabled", example = "true")
     private boolean invitationSent;
-    @Schema(description = "Notificaciones de nuevo miembro en parche", example = "true")
+
+    @Schema(description = "Member joined parche notifications enabled", example = "true")
     private boolean memberJoined;
 }
