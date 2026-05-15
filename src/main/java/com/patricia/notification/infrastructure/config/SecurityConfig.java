@@ -8,6 +8,15 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 
+/**
+ * Spring Security configuration for the notification service.
+ *
+ * <p>Authentication and authorization are delegated to the API Gateway, which
+ * injects the {@code X-User-Id} header after verifying the caller's identity.
+ * This service therefore permits all requests and relies on the gateway as the
+ * security boundary. CSRF is disabled because the service is stateless and
+ * consumed by trusted internal services.</p>
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {

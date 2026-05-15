@@ -9,6 +9,15 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * MongoDB document representing a user's notification preferences.
+ *
+ * <p>{@code userId} has a unique index to enforce one preferences record per user.
+ * The boolean fields mirror the {@link com.patricia.notification.domain.model.NotificationPreferences}
+ * domain model one-to-one.</p>
+ *
+ * <p>Maps to the {@code notification_preferences} collection.</p>
+ */
 @Getter
 @Setter
 @Builder
@@ -18,6 +27,7 @@ public class NotificationPreferencesDocument {
     @Id
     private String id;
 
+    /** Unique per user — enforced by MongoDB index. */
     @Indexed(unique = true)
     private String userId;
 

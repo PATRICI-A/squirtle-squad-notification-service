@@ -9,6 +9,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+/**
+ * MongoDB document representing an event reminder.
+ *
+ * <p>The compound unique index on {@code (userId, eventId)} prevents duplicate
+ * reminders for the same user-event pair. The {@code reminded24h} and {@code reminded1h}
+ * flags are set to {@code true} after each notification is sent to prevent
+ * duplicate firing across scheduler runs.</p>
+ *
+ * <p>Maps to the {@code event_reminders} collection.</p>
+ */
 @Getter
 @Setter
 @Builder

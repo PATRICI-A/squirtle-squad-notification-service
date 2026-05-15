@@ -6,9 +6,19 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Maps between the {@link EventReminder} domain model and the
+ * {@link EventReminderDocument} MongoDB document.
+ */
 @Component
 public class EventReminderPersistenceMapper {
 
+    /**
+     * Converts a domain {@link EventReminder} to an {@link EventReminderDocument}.
+     *
+     * @param reminder the domain object to convert
+     * @return the corresponding MongoDB document
+     */
     public EventReminderDocument toDocument(EventReminder reminder) {
         return EventReminderDocument.builder()
                 .id(reminder.getId() != null ? reminder.getId() : null)
@@ -20,6 +30,12 @@ public class EventReminderPersistenceMapper {
                 .build();
     }
 
+    /**
+     * Converts an {@link EventReminderDocument} from MongoDB to its domain representation.
+     *
+     * @param doc the MongoDB document to convert
+     * @return the corresponding domain {@link EventReminder}
+     */
     public EventReminder toDomain(EventReminderDocument doc) {
         return EventReminder.builder()
                 .id(doc.getId())

@@ -10,6 +10,13 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Adapter that implements {@link PreferencesRepository} using MongoDB.
+ *
+ * <p>Translates between domain {@link NotificationPreferences} objects and
+ * {@link com.patricia.notification.infrastructure.adapters.persistence.entity.NotificationPreferencesDocument}
+ * MongoDB documents via {@link NotificationPreferencesPersistenceMapper}.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class PreferencesRepositoryAdapter implements PreferencesRepository {

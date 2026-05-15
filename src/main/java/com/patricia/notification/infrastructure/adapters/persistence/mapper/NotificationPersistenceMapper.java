@@ -8,9 +8,23 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Maps between the {@link Notification} domain model and the
+ * {@link NotificationDocument} MongoDB document.
+ *
+ * <p>UUID fields are stored as strings in MongoDB. A new random UUID is generated
+ * on {@link #toDocument(Notification)} when the domain object has no ID yet
+ * (i.e. before first persistence).</p>
+ */
 @Component
 public class NotificationPersistenceMapper {
 
+    /**
+     * Converts a domain {@link Notification} to a {@link NotificationDocument} ready for persistence.
+     *
+     * @param notification the domain object to convert
+     * @return the corresponding MongoDB document
+     */
     public NotificationDocument toDocument(Notification notification) {
         return NotificationDocument.builder()
                 .id(notification.getId() != null
@@ -29,6 +43,12 @@ public class NotificationPersistenceMapper {
                 .build();
     }
 
+    /**
+     * Converts a {@link NotificationDocument} from MongoDB to its domain representation.
+     *
+     * @param doc the MongoDB document to convert
+     * @return the corresponding domain {@link Notification}
+     */
     public Notification toDomain(NotificationDocument doc) {
         return Notification.builder()
                 .id(doc.getId() != null ? UUID.fromString(doc.getId()) : null)

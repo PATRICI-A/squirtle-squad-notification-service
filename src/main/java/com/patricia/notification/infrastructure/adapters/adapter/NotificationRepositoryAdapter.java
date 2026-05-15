@@ -13,6 +13,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+/**
+ * Adapter that implements {@link NotificationRepository} using MongoDB.
+ *
+ * <p>Translates between domain {@link Notification} objects and
+ * {@link com.patricia.notification.infrastructure.adapters.persistence.entity.NotificationDocument}
+ * MongoDB documents via {@link NotificationPersistenceMapper}.</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class NotificationRepositoryAdapter implements NotificationRepository {
@@ -30,6 +37,12 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
         return mongoRepository.findById(id.toString()).map(mapper::toDomain);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Delegates pagination to Spring Data's {@link PageRequest}; results are
+     * pre-sorted by {@code createdAt} descending at the query level.</p>
+     */
     @Override
     public List<Notification> findByUserIdPaged(UUID userId, int page, int size) {
         return mongoRepository.findByUserIdOrderByCreatedAtDesc(
