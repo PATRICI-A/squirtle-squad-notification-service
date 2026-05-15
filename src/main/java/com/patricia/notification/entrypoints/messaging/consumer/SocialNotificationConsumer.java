@@ -9,6 +9,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * RabbitMQ consumer for social interaction notification events.
+ *
+ * <p>Handles connection request events published by the social service.
+ * Malformed messages are rejected to the dead-letter queue.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -17,6 +23,11 @@ public class SocialNotificationConsumer {
     private final SendNotificationUseCase sendNotificationUseCase;
     private final EventDtoValidator eventDtoValidator;
 
+    /**
+     * Sends a connection request notification to the target user.
+     *
+     * @param event the connection request event from the social service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.connection-request}")
     public void handleConnectionRequest(ConnectionRequestEventDto event) {
         eventDtoValidator.validate(event);

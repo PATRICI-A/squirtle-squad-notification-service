@@ -10,6 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * RabbitMQ consumer for parche-related notification events.
+ *
+ * <p>Handles parche invitation and nearby parche events published by the parche service.
+ * Malformed messages are rejected to the dead-letter queue.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -18,6 +24,11 @@ public class ParcheNotificationConsumer {
     private final SendNotificationUseCase sendNotificationUseCase;
     private final EventDtoValidator eventDtoValidator;
 
+    /**
+     * Sends a parche invitation notification to the target user.
+     *
+     * @param event the parche invitation event from the parche service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.parche-invitation}")
     public void handleParcheInvitation(ParcheInvitationEventDto event) {
         eventDtoValidator.validate(event);
@@ -31,6 +42,11 @@ public class ParcheNotificationConsumer {
         );
     }
 
+    /**
+     * Sends a nearby parche notification to the target user.
+     *
+     * @param event the nearby parche event from the parche service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.nearby-parche}")
     public void handleNearbyParche(NearbyParcheEventDto event) {
         eventDtoValidator.validate(event);

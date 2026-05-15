@@ -10,11 +10,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.UUID;
 
+/**
+ * Event DTO for OTP resend requests published by the auth service.
+ *
+ * <p>Unlike {@link OtpVerificationEventDto}, {@code userId} is required here
+ * because the user must already exist to request a code resend.</p>
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class OtpResendEventDto {
+
     @NotNull
     private UUID userId;
 

@@ -11,6 +11,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * RabbitMQ consumer for hangout (parche membership) notification events.
+ *
+ * <p>Handles invitation accepted, invitation sent, and member joined events
+ * published by the hangout service. Malformed messages are rejected to the dead-letter queue.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -19,6 +25,11 @@ public class HangoutNotificationConsumer {
     private final SendNotificationUseCase sendNotificationUseCase;
     private final EventDtoValidator eventDtoValidator;
 
+    /**
+     * Notifies the parche captain that a student accepted their invitation.
+     *
+     * @param event the invitation accepted event from the hangout service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.invitation-accepted}")
     public void handleInvitationAccepted(InvitationAcceptedEventDto event) {
         eventDtoValidator.validate(event);
@@ -32,6 +43,11 @@ public class HangoutNotificationConsumer {
         );
     }
 
+    /**
+     * Notifies a student that they have been invited to a private parche.
+     *
+     * @param event the invitation sent event from the hangout service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.invitation-sent}")
     public void handleInvitationSent(InvitationSentEventDto event) {
         eventDtoValidator.validate(event);
@@ -45,6 +61,11 @@ public class HangoutNotificationConsumer {
         );
     }
 
+    /**
+     * Notifies the parche captain that a new student has joined their parche.
+     *
+     * @param event the member joined event from the hangout service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.member-joined}")
     public void handleMemberJoined(MemberJoinedEventDto event) {
         eventDtoValidator.validate(event);

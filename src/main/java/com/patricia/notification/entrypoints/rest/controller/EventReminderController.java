@@ -17,7 +17,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Recordatorios", description = "Gestión de recordatorios de eventos")
+/**
+ * REST controller for registering event reminders.
+ *
+ * <p>Once registered, the scheduler automatically sends notifications to the user
+ * 24 hours and 1 hour before the event date.</p>
+ */
+@Tag(name = "Event Reminders", description = "Register and manage event reminders")
 @RestController
 @RequestMapping("/api/event-reminders")
 @RequiredArgsConstructor
@@ -25,10 +31,16 @@ public class EventReminderController {
 
     private final CreateEventReminderUseCase createEventReminderUseCase;
 
-    @Operation(summary = "Crear recordatorio", description = "Registra un recordatorio de evento. El scheduler enviará notificaciones automáticas a las 24h y 1h antes del evento")
+    /**
+     * Registers a new event reminder for the specified user and event.
+     */
+    @Operation(
+            summary = "Create event reminder",
+            description = "Registers an event reminder. The scheduler will automatically send notifications 24 hours and 1 hour before the event date."
+    )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Recordatorio creado"),
-            @ApiResponse(responseCode = "400", description = "Request inválido o fecha en el pasado")
+            @ApiResponse(responseCode = "201", description = "Reminder created successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request — date in the past or exceeds the 365-day limit")
     })
     @PostMapping
     public ResponseEntity<EventReminderResponse> createReminder(
@@ -42,6 +54,11 @@ public class EventReminderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(reminder));
     }
 
+    /**
+     * Maps an {@link EventReminder} domain object to its API response representation.
+     *
+     * <p>Kept local to this controller because no other entry point needs this mapping.</p>
+     */
     private EventReminderResponse toResponse(EventReminder reminder) {
         return EventReminderResponse.builder()
                 .id(reminder.getId())

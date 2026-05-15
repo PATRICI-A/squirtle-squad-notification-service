@@ -10,11 +10,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.util.UUID;
 
+/**
+ * Event DTO for password reset requests published by the auth service.
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class PasswordResetEventDto {
+
     @NotBlank
     @Email
     private String email;

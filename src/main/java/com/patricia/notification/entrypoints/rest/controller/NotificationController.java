@@ -38,7 +38,14 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Tag(name = "Notificaciones", description = "Gestión de notificaciones in-app del usuario")
+/**
+ * REST controller for managing user notifications.
+ *
+ * <p>All endpoints require the caller to supply the recipient's user ID via the
+ * {@code X-User-Id} header, which is expected to be injected by the API gateway
+ * after authentication.</p>
+ */
+@Tag(name = "Notifications", description = "Manage in-app notifications for users")
 @Validated
 @RestController
 @RequestMapping("/api/notifications")
@@ -53,11 +60,17 @@ public class NotificationController {
     private final UpdatePreferencesUseCase updatePreferencesUseCase;
     private final NotificationMapper mapper;
 
-    @Operation(summary = "Crear notificación", description = "Crea y entrega una notificación al usuario. Si está conectado via WebSocket la recibe en tiempo real; si no, queda persistida en MongoDB")
+    /**
+     * Creates and delivers a notification to a user.
+     *
+     * <p>If the user is connected via WebSocket the notification is delivered in real time;
+     * otherwise it is persisted in MongoDB for later retrieval.</p>
+     */
+    @Operation(summary = "Send notification", description = "Creates and delivers a notification to the specified user. If the user is connected via WebSocket it is delivered in real time; otherwise it is persisted for later retrieval.")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Notificación creada y entregada"),
-            @ApiResponse(responseCode = "400", description = "Request inválido"),
-            @ApiResponse(responseCode = "409", description = "Tipo de notificación deshabilitado por el usuario")
+            @ApiResponse(responseCode = "201", description = "Notification created and delivered"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body"),
+            @ApiResponse(responseCode = "409", description = "Notification type disabled by the user")
     })
     @PostMapping
     public ResponseEntity<NotificationResponse> sendNotification(
@@ -74,16 +87,20 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @Operation(summary = "Listar notificaciones", description = "Retorna notificaciones del usuario paginadas, ordenadas por fecha descendente")
+    /**
+     * Returns a paginated list of notifications for the requesting user,
+     * sorted by creation date descending.
+     */
+    @Operation(summary = "List notifications", description = "Returns a paginated list of notifications for the user, sorted by creation date descending.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Lista de notificaciones"),
-            @ApiResponse(responseCode = "400", description = "Parámetros inválidos")
+            @ApiResponse(responseCode = "200", description = "Notification list"),
+            @ApiResponse(responseCode = "400", description = "Invalid pagination parameters")
     })
     @GetMapping
     public ResponseEntity<List<NotificationResponse>> getNotifications(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId,
-            @Parameter(description = "Número de página (base 0)", example = "0") @Min(0) @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "Tamaño de página", example = "20") @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size) {
+            @Parameter(description = "Zero-based page index", example = "0") @Min(0) @RequestParam(defaultValue = "0") int page,
+            @Parameter(description = "Page size (1–100)", example = "20") @Min(1) @Max(100) @RequestParam(defaultValue = "20") int size) {
 
         List<NotificationResponse> response = getNotificationsUseCase
                 .execute(UUID.fromString(userId), page, size)
@@ -94,8 +111,11 @@ public class NotificationController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "Contar no leídas", description = "Retorna el número de notificaciones no leídas del usuario")
-    @ApiResponse(responseCode = "200", description = "Conteo de notificaciones no leídas")
+    /**
+     * Returns the number of unread notifications for the requesting user.
+     */
+    @Operation(summary = "Get unread count", description = "Returns the number of unread notifications for the user.")
+    @ApiResponse(responseCode = "200", description = "Unread notification count")
     @GetMapping("/unread/count")
     public ResponseEntity<UnreadNotificationCountResponse> getUnreadCount(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
@@ -104,22 +124,28 @@ public class NotificationController {
         return ResponseEntity.ok(mapper.toUnreadCountResponse(count));
     }
 
-    @Operation(summary = "Marcar una como leída", description = "Marca una notificación específica como leída. Solo el propietario puede marcarla")
+    /**
+     * Marks a single notification as read.
+     */
+    @Operation(summary = "Mark one as read", description = "Marks the specified notification as read. Only the notification owner should call this endpoint.")
     @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "Marcada como leída"),
-            @ApiResponse(responseCode = "404", description = "Notificación no encontrada")
+            @ApiResponse(responseCode = "204", description = "Notification marked as read"),
+            @ApiResponse(responseCode = "404", description = "Notification not found")
     })
     @PutMapping("/{notificationId}/read")
     public ResponseEntity<Void> markSingleAsRead(
-            @Parameter(description = "ID de la notificación", example = "550e8400-e29b-41d4-a716-446655440000") @PathVariable String notificationId,
+            @Parameter(description = "Notification ID", example = "550e8400-e29b-41d4-a716-446655440000") @PathVariable String notificationId,
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
 
         markAsReadUseCase.executeSingle(UUID.fromString(notificationId), UUID.fromString(userId));
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Marcar todas como leídas", description = "Marca todas las notificaciones del usuario como leídas")
-    @ApiResponse(responseCode = "204", description = "Todas marcadas como leídas")
+    /**
+     * Marks all notifications belonging to the requesting user as read.
+     */
+    @Operation(summary = "Mark all as read", description = "Marks all notifications for the user as read.")
+    @ApiResponse(responseCode = "204", description = "All notifications marked as read")
     @PutMapping("/read")
     public ResponseEntity<Void> markAllAsRead(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
@@ -128,8 +154,12 @@ public class NotificationController {
         return ResponseEntity.noContent().build();
     }
 
-    @Operation(summary = "Obtener preferencias", description = "Retorna las preferencias de notificación del usuario. Si no existen, retorna los valores por defecto")
-    @ApiResponse(responseCode = "200", description = "Preferencias del usuario")
+    /**
+     * Returns the notification preferences for the requesting user.
+     * Defaults are returned if no preferences have been saved yet.
+     */
+    @Operation(summary = "Get preferences", description = "Returns the user's notification preferences. If no preferences exist, defaults are returned (all types enabled except NEARBY_PARCHE).")
+    @ApiResponse(responseCode = "200", description = "User notification preferences")
     @GetMapping("/preferences")
     public ResponseEntity<NotificationPreferencesResponse> getPreferences(
             @Parameter(hidden = true) @RequestHeader("X-User-Id") String userId) {
@@ -139,10 +169,13 @@ public class NotificationController {
                         getPreferencesUseCase.execute(UUID.fromString(userId))));
     }
 
-    @Operation(summary = "Actualizar preferencia", description = "Habilita o deshabilita un tipo de notificación específico para el usuario")
+    /**
+     * Enables or disables a specific notification type for the requesting user.
+     */
+    @Operation(summary = "Update preference", description = "Enables or disables a specific notification type for the user.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Preferencias actualizadas"),
-            @ApiResponse(responseCode = "400", description = "Request inválido")
+            @ApiResponse(responseCode = "200", description = "Preference updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body")
     })
     @PutMapping("/preferences")
     public ResponseEntity<NotificationPreferencesResponse> updatePreferences(
