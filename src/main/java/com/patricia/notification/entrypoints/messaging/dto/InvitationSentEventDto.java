@@ -30,5 +30,5 @@ public class InvitationSentEventDto {
 
     /** ID of the captain who sent the invitation. */
     @NotNull
-    private UUID capatinId;
+    private UUID captainId;
 }

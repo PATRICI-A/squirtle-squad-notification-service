@@ -34,5 +34,5 @@ public class InvitationAcceptedEventDto {
     private UUID captainId;
 
     @NotNull
-    private LocalDateTime ocurredAt;
+    private LocalDateTime occurredAt;
 }
