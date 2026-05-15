@@ -600,7 +600,7 @@ mvn clean test jacoco:report
 - ✅ Todas las pruebas en estado **PASSED**
 - ✅ Pruebas de casos felices **y** casos de error implementados
 
-![Jacoco.png](Jacoco.png)
+![Jacoco.png](docs/Jacoco.png)
 ---
 
 ## 8. 📈 Evidencia del Análisis de Cobertura
@@ -613,7 +613,7 @@ mvn clean test jacoco:report
 
 El reporte HTML estará disponible en: `target/site/jacoco/index.html`
 
-![Jacoco.png](Jacoco.png)
+![Jacoco.png](docs/Jacoco.png)
 
 ---
 
@@ -670,9 +670,9 @@ docker-compose up --build -d
 
 El proyecto cuenta con un pipeline de **GitHub Actions** que se ejecuta automáticamente en cada push y pull request.
 
-![CD.png](CD.png)
+![CD.png](docs/CD.png)
 
-![CI.png](CI.png)
+![CI.png](docs/CI.png)
 
 ---
 
