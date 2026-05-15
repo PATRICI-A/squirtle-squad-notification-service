@@ -16,12 +16,21 @@ public class NotificationPreferencesPersistenceMapper {
     /**
      * Converts a domain {@link NotificationPreferences} to a {@link NotificationPreferencesDocument}.
      *
-     * @param preferences the domain object to convert
+     * @param {preferences} the domain object to convert
      * @return the corresponding MongoDB document
      */
+    private UUID safeParseUUID(String value) {
+        if (value == null) return null;
+        try {
+            return UUID.fromString(value);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
     public NotificationPreferencesDocument toDocument(NotificationPreferences preferences) {
         return NotificationPreferencesDocument.builder()
-                .id(preferences.getId() != null ? preferences.getId().toString() : null)
+                .id(preferences.getId() != null ? preferences.getId().toString() : UUID.randomUUID().toString())
                 .userId(preferences.getUserId() != null
                         ? preferences.getUserId().toString() : null)
                 .connectionRequest(preferences.isConnectionRequest())
@@ -47,7 +56,7 @@ public class NotificationPreferencesPersistenceMapper {
      */
     public NotificationPreferences toDomain(NotificationPreferencesDocument doc) {
         return NotificationPreferences.builder()
-                .id(doc.getId() != null ? UUID.fromString(doc.getId()) : null)
+                .id(safeParseUUID(doc.getId()))
                 .userId(doc.getUserId() != null
                         ? UUID.fromString(doc.getUserId()) : null)
                 .connectionRequest(doc.isConnectionRequest())
