@@ -9,7 +9,7 @@ env:
   JAVA_VERSION: '21'
   REGISTRY: ghcr.io
   REGISTRY_OWNER: ${{ github.repository_owner }}
-  IMAGE_NAME: squirtle-squad-notification-service
+  IMAGE_NAME: patrici-a/squirtle-squad-notification-service
   CONTAINER_APP_NAME: aibert-notification-service-prod
   RESOURCE_GROUP: rg-patricia-prod
 
@@ -53,7 +53,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.REGISTRY_OWNER }}/${{ env.IMAGE_NAME }}:prod-latest
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-latest
 
   deploy:
     name: "Deploy to Azure Container Apps"
@@ -72,4 +72,4 @@ jobs:
           az containerapp update \
             --name ${{ env.CONTAINER_APP_NAME }} \
             --resource-group ${{ env.RESOURCE_GROUP }} \
-            --image ${{ env.REGISTRY }}/${{ env.REGISTRY_OWNER }}/${{ env.IMAGE_NAME }}:prod-latest
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:prod-latest
