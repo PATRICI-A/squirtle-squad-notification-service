@@ -10,7 +10,7 @@ env:
   REGISTRY: ghcr.io
   REGISTRY_OWNER: ${{ github.repository_owner }}
   IMAGE_NAME: patrici-a/squirtle-squad-notification-service
-  CONTAINER_APP_NAME: patricia-notifi-service-prod
+  CONTAINER_APP_NAME: patricia-notificati-service-prod
   RESOURCE_GROUP: rg-patricia-prod
 
 jobs:
