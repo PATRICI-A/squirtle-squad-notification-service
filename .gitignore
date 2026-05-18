@@ -42,3 +42,7 @@ application-secret.yml
 
 ### Claude Code Apoyo Documentacion ###
 .claude/
+.claude
+.claudeignore
+
+
