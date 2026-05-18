@@ -31,3 +31,14 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment secrets ###
+.env
+*.env
+application-local.properties
+application-local.yml
+application-secret.properties
+application-secret.yml
+
+### Claude Code Apoyo Documentacion ###
+.claude/

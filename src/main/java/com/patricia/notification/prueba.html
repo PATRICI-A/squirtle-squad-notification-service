@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>WebSocket Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+</head>
+<body>
+<h2>WebSocket Notifications Test</h2>
+<input id="userId" placeholder="userId" value="user-123" />
+<button onclick="connect()">Conectar</button>
+<button onclick="disconnect()">Desconectar</button>
+<hr>
+<div id="status">Desconectado</div>
+<div id="messages"></div>
+
+<script>
+    let stompClient = null;
+
+    function connect() {
+        const userId = document.getElementById('userId').value;
+        const socket = new SockJS('https://app-patricia-notification-b4d2hcd0fqd7bkcm.canadacentral-01.azurewebsites.net/ws/notifications');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            document.getElementById('status').innerText = '✅ Conectado como: ' + userId;
+
+            stompClient.subscribe('/topic/notifications/' + userId, function (msg) {
+                const notif = JSON.parse(msg.body);
+                document.getElementById('messages').innerHTML +=
+                    '<p><b>' + notif.title + '</b>: ' + notif.body + '</p>';
+            });
+
+            stompClient.send('/app/notifications.connect', {}, userId);
+        });
+    }
+
+    function disconnect() {
+        if (stompClient) stompClient.disconnect();
+        document.getElementById('status').innerText = 'Desconectado';
+    }
+</script>
+</body>
+</html>

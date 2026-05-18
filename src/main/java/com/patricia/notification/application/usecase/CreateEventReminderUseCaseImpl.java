@@ -1,0 +1,36 @@
+package com.patricia.notification.application.usecase;
+
+import com.patricia.notification.domain.model.EventReminder;
+import com.patricia.notification.domain.ports.in.CreateEventReminderUseCase;
+import com.patricia.notification.domain.ports.out.EventReminderRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+/**
+ * Creates and persists a new event reminder with both reminder flags set to {@code false}.
+ *
+ * <p>The {@link com.patricia.notification.application.service.EventReminderService} scheduler
+ * picks up the reminder on its next run and fires notifications at the appropriate times.</p>
+ */
+@Service
+@RequiredArgsConstructor
+public class CreateEventReminderUseCaseImpl implements CreateEventReminderUseCase {
+
+    private final EventReminderRepository eventReminderRepository;
+
+    @Override
+    public EventReminder execute(UUID userId, UUID eventId, LocalDateTime eventDate) {
+        EventReminder reminder = EventReminder.builder()
+                .userId(userId)
+                .eventId(eventId)
+                .eventDate(eventDate)
+                .reminded24h(false)
+                .reminded1h(false)
+                .build();
+
+        return eventReminderRepository.save(reminder);
+    }
+}
