@@ -35,7 +35,6 @@ public class UpdatePreferencesUseCaseImpl implements UpdatePreferencesUseCase {
                         .eventReminder(true)
                         .nearbyParche(false)
                         .achievementUnlocked(true)
-                        .parcheInvitation(true)
                         .otpVerification(true)
                         .passwordReset(true)
                         .invitationAccepted(true)

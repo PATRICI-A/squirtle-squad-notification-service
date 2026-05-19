@@ -30,9 +30,6 @@ public class NotificationPreferencesResponse {
     @Schema(description = "Achievement unlocked notifications enabled", example = "true")
     private boolean achievementUnlocked;
 
-    @Schema(description = "Parche invitation notifications enabled", example = "true")
-    private boolean parcheInvitation;
-
     @Schema(description = "OTP verification notifications enabled", example = "true")
     private boolean otpVerification;
 

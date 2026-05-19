@@ -35,7 +35,7 @@ public class ParcheNotificationConsumer {
         log.info("Evento recibido: invitación a parche para {}", event.getTargetUserId());
         sendNotificationUseCase.execute(
                 event.getTargetUserId(),
-                NotificationType.PARCHE_INVITATION,
+                NotificationType.INVITATION_SENT,
                 "Te invitaron a un parche",
                 event.getInviterUserName() + " te invitó a: " + event.getParcheName(),
                 event.getParcheId()

@@ -49,7 +49,7 @@ class ParcheNotificationConsumerTest {
 
         verify(sendNotificationUseCase).execute(
                 eq(USER_ID_1),
-                eq(NotificationType.PARCHE_INVITATION),
+                eq(NotificationType.INVITATION_SENT),
                 eq("Te invitaron a un parche"),
                 contains("Juan"),
                 eq(PARCHE_ID_1)

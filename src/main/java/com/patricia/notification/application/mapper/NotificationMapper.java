@@ -50,7 +50,6 @@ public class NotificationMapper {
                 .eventReminder(preferences.isEventReminder())
                 .nearbyParche(preferences.isNearbyParche())
                 .achievementUnlocked(preferences.isAchievementUnlocked())
-                .parcheInvitation(preferences.isParcheInvitation())
                 .otpVerification(preferences.isOtpVerification())
                 .passwordReset(preferences.isPasswordReset())
                 .invitationAccepted(preferences.isInvitationAccepted())

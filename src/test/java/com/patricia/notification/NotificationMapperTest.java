@@ -88,7 +88,6 @@ class NotificationMapperTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(false)
                 .build();
 
         NotificationPreferencesResponse response = mapper.toPreferencesResponse(preferences);
@@ -98,7 +97,6 @@ class NotificationMapperTest {
         assertThat(response.isEventReminder()).isTrue();
         assertThat(response.isNearbyParche()).isFalse();
         assertThat(response.isAchievementUnlocked()).isTrue();
-        assertThat(response.isParcheInvitation()).isFalse();
     }
 
     @Test

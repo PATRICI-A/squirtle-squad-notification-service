@@ -59,7 +59,6 @@ class NotificationDTOsTest {
                 .eventReminder(true)
                 .nearbyParche(true)
                 .achievementUnlocked(false)
-                .parcheInvitation(true)
                 .build();
 
         assertThat(response.isConnectionRequest()).isTrue();
@@ -67,7 +66,6 @@ class NotificationDTOsTest {
         assertThat(response.isEventReminder()).isTrue();
         assertThat(response.isNearbyParche()).isTrue();
         assertThat(response.isAchievementUnlocked()).isFalse();
-        assertThat(response.isParcheInvitation()).isTrue();
     }
 
     @Test

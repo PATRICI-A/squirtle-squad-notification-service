@@ -38,7 +38,6 @@ class NotificationPreferencesPersistenceMapperTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(false)
                 .updatedAt(updatedAt)
                 .build();
 
@@ -51,7 +50,6 @@ class NotificationPreferencesPersistenceMapperTest {
         assertThat(doc.isEventReminder()).isTrue();
         assertThat(doc.isNearbyParche()).isFalse();
         assertThat(doc.isAchievementUnlocked()).isTrue();
-        assertThat(doc.isParcheInvitation()).isFalse();
         assertThat(doc.getUpdatedAt()).isEqualTo(updatedAt);
     }
 
@@ -67,7 +65,6 @@ class NotificationPreferencesPersistenceMapperTest {
                 .eventReminder(false)
                 .nearbyParche(true)
                 .achievementUnlocked(false)
-                .parcheInvitation(true)
                 .updatedAt(updatedAt)
                 .build();
 
@@ -80,7 +77,6 @@ class NotificationPreferencesPersistenceMapperTest {
         assertThat(preferences.isEventReminder()).isFalse();
         assertThat(preferences.isNearbyParche()).isTrue();
         assertThat(preferences.isAchievementUnlocked()).isFalse();
-        assertThat(preferences.isParcheInvitation()).isTrue();
         assertThat(preferences.getUpdatedAt()).isEqualTo(updatedAt);
     }
 }

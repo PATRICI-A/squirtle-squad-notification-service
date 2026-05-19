@@ -20,7 +20,6 @@ class NotificationPreferencesTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(false)
                 .otpVerification(true)
                 .passwordReset(false)
                 .invitationAccepted(true)
@@ -33,7 +32,6 @@ class NotificationPreferencesTest {
         assertThat(prefs.isEnabled(NotificationType.EVENT_REMINDER)).isTrue();
         assertThat(prefs.isEnabled(NotificationType.NEARBY_PARCHE)).isFalse();
         assertThat(prefs.isEnabled(NotificationType.ACHIEVEMENT_UNLOCKED)).isTrue();
-        assertThat(prefs.isEnabled(NotificationType.PARCHE_INVITATION)).isFalse();
         assertThat(prefs.isEnabled(NotificationType.OTP_VERIFICATION)).isTrue();
         assertThat(prefs.isEnabled(NotificationType.PASSWORD_RESET)).isFalse();
         assertThat(prefs.isEnabled(NotificationType.INVITATION_ACCEPTED)).isTrue();
@@ -73,7 +71,6 @@ class NotificationPreferencesTest {
                 .eventReminder(false)
                 .nearbyParche(false)
                 .achievementUnlocked(false)
-                .parcheInvitation(false)
                 .otpVerification(false)
                 .passwordReset(false)
                 .build();
@@ -89,9 +86,6 @@ class NotificationPreferencesTest {
 
         prefs.update(NotificationType.ACHIEVEMENT_UNLOCKED, true);
         assertThat(prefs.isEnabled(NotificationType.ACHIEVEMENT_UNLOCKED)).isTrue();
-
-        prefs.update(NotificationType.PARCHE_INVITATION, true);
-        assertThat(prefs.isEnabled(NotificationType.PARCHE_INVITATION)).isTrue();
 
         prefs.update(NotificationType.OTP_VERIFICATION, true);
         assertThat(prefs.isEnabled(NotificationType.OTP_VERIFICATION)).isTrue();

@@ -36,7 +36,6 @@ public class NotificationPreferencesDocument {
     private boolean eventReminder;
     private boolean nearbyParche;
     private boolean achievementUnlocked;
-    private boolean parcheInvitation;
     private boolean otpVerification;
     private boolean passwordReset;
     private boolean invitationAccepted;

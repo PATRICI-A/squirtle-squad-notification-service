@@ -63,7 +63,7 @@ class SendNotificationUseCaseImplTest {
                 .eventReminder(true)
                 .nearbyParche(true)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
+
                 .build();
     }
 
@@ -185,7 +185,7 @@ class SendNotificationUseCaseImplTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
+
                 .build();
 
         when(preferencesRepository.findByUserId(USER_ID))

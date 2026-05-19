@@ -43,7 +43,6 @@ class UpdatePreferencesUseCaseImplTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
                 .build();
 
         NotificationPreferences updated = NotificationPreferences.builder()
@@ -53,7 +52,6 @@ class UpdatePreferencesUseCaseImplTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
                 .build();
 
         when(preferencesRepository.findByUserId(USER_ID)).thenReturn(Optional.of(existing));
@@ -78,7 +76,6 @@ class UpdatePreferencesUseCaseImplTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
                 .build();
 
         when(preferencesRepository.save(any())).thenReturn(newPrefs);
@@ -101,7 +98,6 @@ class UpdatePreferencesUseCaseImplTest {
                 .eventReminder(false)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
                 .build();
 
         ArgumentCaptor<NotificationPreferences> captor = ArgumentCaptor.forClass(NotificationPreferences.class);

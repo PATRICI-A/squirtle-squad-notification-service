@@ -23,9 +23,6 @@ public enum NotificationType {
     /** The user unlocked an achievement. */
     ACHIEVEMENT_UNLOCKED,
 
-    /** The user received an invitation to join a parche. */
-    PARCHE_INVITATION,
-
     /** A one-time password was generated for identity verification. */
     OTP_VERIFICATION,
 

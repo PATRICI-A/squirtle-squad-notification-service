@@ -38,7 +38,6 @@ class GetPreferencesUseCaseImplTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
                 .build();
 
         when(preferencesRepository.findByUserId(USER_ID)).thenReturn(Optional.of(prefs));
@@ -63,6 +62,5 @@ class GetPreferencesUseCaseImplTest {
         assertThat(result.isEventReminder()).isTrue();
         assertThat(result.isNearbyParche()).isFalse();
         assertThat(result.isAchievementUnlocked()).isTrue();
-        assertThat(result.isParcheInvitation()).isTrue();
     }
 }

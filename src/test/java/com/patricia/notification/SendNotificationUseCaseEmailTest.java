@@ -55,7 +55,7 @@ class SendNotificationUseCaseEmailTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
+
                 .otpVerification(true)
                 .passwordReset(true)
                 .build();
@@ -95,7 +95,7 @@ class SendNotificationUseCaseEmailTest {
                 .eventReminder(true)
                 .nearbyParche(false)
                 .achievementUnlocked(true)
-                .parcheInvitation(true)
+
                 .otpVerification(true)
                 .passwordReset(true)
                 .build();
