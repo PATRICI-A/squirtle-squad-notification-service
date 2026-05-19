@@ -40,6 +40,8 @@ public class NotificationPersistenceMapper {
                 .referenceId(notification.getReferenceId() != null
                         ? notification.getReferenceId().toString() : null)
                 .createdAt(notification.getCreatedAt())
+                .archived(notification.isArchived())
+                .archivedAt(notification.getArchivedAt())
                 .build();
     }
 
@@ -63,6 +65,8 @@ public class NotificationPersistenceMapper {
                 .referenceId(doc.getReferenceId() != null
                         ? UUID.fromString(doc.getReferenceId()) : null)
                 .createdAt(doc.getCreatedAt())
+                .archived(doc.isArchived())
+                .archivedAt(doc.getArchivedAt())
                 .build();
     }
 }

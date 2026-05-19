@@ -41,4 +41,6 @@ public class NotificationDocument {
     private boolean read;
     private String referenceId;
     private LocalDateTime createdAt;
+    private boolean archived;
+    private LocalDateTime archivedAt;
 }

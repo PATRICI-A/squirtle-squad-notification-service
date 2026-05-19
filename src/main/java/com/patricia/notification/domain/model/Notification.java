@@ -50,11 +50,25 @@ public class Notification {
     /** Timestamp when the notification was created, in ISO 8601 format. */
     private LocalDateTime createdAt;
 
+    /** Whether this notification has been archived (older than 30 days). */
+    private boolean archived;
+
+    /** Timestamp when the notification was archived. */
+    private LocalDateTime archivedAt;
+
     /**
      * Marks this notification as read by the recipient.
      */
     public void markAsRead() {
         this.read = true;
+    }
+
+    /**
+     * Archives this notification, hiding it from normal queries.
+     */
+    public void archive() {
+        this.archived = true;
+        this.archivedAt = LocalDateTime.now();
     }
 
     /**

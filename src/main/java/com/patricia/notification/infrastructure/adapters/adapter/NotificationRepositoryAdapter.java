@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
      */
     @Override
     public List<Notification> findByUserIdPaged(UUID userId, int page, int size) {
-        return mongoRepository.findByUserIdOrderByCreatedAtDesc(
+        return mongoRepository.findByUserIdAndArchivedFalseOrderByCreatedAtDesc(
                         userId.toString(), PageRequest.of(page, size))
                 .stream()
                 .map(mapper::toDomain)
@@ -54,11 +55,16 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
 
     @Override
     public int countUnreadByUserId(UUID userId) {
-        return mongoRepository.countByUserIdAndReadFalse(userId.toString());
+        return mongoRepository.countByUserIdAndReadFalseAndArchivedFalse(userId.toString());
     }
 
     @Override
     public void markAllAsReadByUserId(UUID userId) {
         mongoRepository.markAllAsReadByUserId(userId.toString());
+    }
+
+    @Override
+    public void archiveOlderThan(LocalDateTime cutoff) {
+        mongoRepository.archiveOlderThan(cutoff, LocalDateTime.now());
     }
 }

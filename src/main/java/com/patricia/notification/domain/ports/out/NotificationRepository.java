@@ -1,6 +1,7 @@
 package com.patricia.notification.domain.ports.out;
 
 import com.patricia.notification.domain.model.Notification;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,4 +53,11 @@ public interface NotificationRepository {
      * @param userId the recipient user ID
      */
     void markAllAsReadByUserId(UUID userId);
+
+    /**
+     * Archives all notifications older than the given cutoff date.
+     *
+     * @param cutoff notifications with {@code createdAt} before this date are archived
+     */
+    void archiveOlderThan(LocalDateTime cutoff);
 }
