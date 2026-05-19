@@ -33,6 +33,9 @@ public class NotificationPreferences {
     private boolean invitationAccepted;
     private boolean invitationSent;
     private boolean memberJoined;
+    private boolean matchReceived;
+    private boolean matchResponse;
+    private boolean friendshipCreated;
 
     /** Timestamp of the last preference change. */
     private LocalDateTime updatedAt;
@@ -56,6 +59,9 @@ public class NotificationPreferences {
             case INVITATION_ACCEPTED -> this.invitationAccepted;
             case INVITATION_SENT -> this.invitationSent;
             case MEMBER_JOINED -> this.memberJoined;
+            case MATCH_RECEIVED -> this.matchReceived;
+            case MATCH_RESPONSE -> this.matchResponse;
+            case FRIENDSHIP_CREATED -> this.friendshipCreated;
         };
     }
 
@@ -79,6 +85,9 @@ public class NotificationPreferences {
             case INVITATION_ACCEPTED -> this.invitationAccepted = enabled;
             case INVITATION_SENT -> this.invitationSent = enabled;
             case MEMBER_JOINED -> this.memberJoined = enabled;
+            case MATCH_RECEIVED -> this.matchReceived = enabled;
+            case MATCH_RESPONSE -> this.matchResponse = enabled;
+            case FRIENDSHIP_CREATED -> this.friendshipCreated = enabled;
         };
         this.updatedAt = LocalDateTime.now();
     }

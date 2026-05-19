@@ -101,6 +101,9 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
                 .invitationAccepted(true)
                 .invitationSent(true)
                 .memberJoined(true)
+                .matchReceived(true)
+                .matchResponse(true)
+                .friendshipCreated(true)
                 .build();
     }
 }

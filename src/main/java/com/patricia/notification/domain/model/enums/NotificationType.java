@@ -39,5 +39,14 @@ public enum NotificationType {
     INVITATION_SENT,
 
     /** A new student joined a parche the user captains. */
-    MEMBER_JOINED
+    MEMBER_JOINED,
+
+    /** Another user sent a match request to this user. */
+    MATCH_RECEIVED,
+
+    /** The user's match request was accepted or rejected by the recipient. */
+    MATCH_RESPONSE,
+
+    /** A friendship was established between the user and another user. */
+    FRIENDSHIP_CREATED
 }

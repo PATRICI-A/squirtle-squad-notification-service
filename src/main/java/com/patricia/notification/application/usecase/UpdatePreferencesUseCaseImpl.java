@@ -41,6 +41,9 @@ public class UpdatePreferencesUseCaseImpl implements UpdatePreferencesUseCase {
                         .invitationAccepted(true)
                         .invitationSent(true)
                         .memberJoined(true)
+                        .matchReceived(true)
+                        .matchResponse(true)
+                        .friendshipCreated(true)
                         .updatedAt(LocalDateTime.now())
                         .build());
 

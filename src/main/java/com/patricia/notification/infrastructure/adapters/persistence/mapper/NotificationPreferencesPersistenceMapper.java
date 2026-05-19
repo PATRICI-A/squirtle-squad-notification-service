@@ -44,6 +44,9 @@ public class NotificationPreferencesPersistenceMapper {
                 .invitationAccepted(preferences.isInvitationAccepted())
                 .invitationSent(preferences.isInvitationSent())
                 .memberJoined(preferences.isMemberJoined())
+                .matchReceived(preferences.isMatchReceived())
+                .matchResponse(preferences.isMatchResponse())
+                .friendshipCreated(preferences.isFriendshipCreated())
                 .updatedAt(preferences.getUpdatedAt())
                 .build();
     }
@@ -70,6 +73,9 @@ public class NotificationPreferencesPersistenceMapper {
                 .invitationAccepted(doc.isInvitationAccepted())
                 .invitationSent(doc.isInvitationSent())
                 .memberJoined(doc.isMemberJoined())
+                .matchReceived(doc.isMatchReceived())
+                .matchResponse(doc.isMatchResponse())
+                .friendshipCreated(doc.isFriendshipCreated())
                 .updatedAt(doc.getUpdatedAt())
                 .build();
     }
