@@ -38,7 +38,7 @@ public class AuthNotificationConsumer {
     public void handleOtpVerification(OtpVerificationEventDto event) {
         eventDtoValidator.validate(event);
         log.info("Evento recibido: OTP verificación para {}", event.getEmail());
-        if (event.getUserId() == null) return; // pre-registro: usuario aún no existe
+        if (event.getUserId() == null) return;
         sendNotificationUseCase.execute(
                 event.getUserId(),
                 NotificationType.OTP_VERIFICATION,
