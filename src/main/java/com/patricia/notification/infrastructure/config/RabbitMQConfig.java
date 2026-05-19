@@ -35,6 +35,10 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.matching}")
     private String matchingExchange;
 
+    @Value("${rabbitmq.exchange.chat}")
+    private String chatExchange;
+
+
     // Queues
     @Value("${rabbitmq.queue.otp-verification}")
     private String otpVerificationQueue;
@@ -71,6 +75,9 @@ public class RabbitMQConfig {
 
     @Value("${rabbitmq.queue.match-response}")
     private String matchResponseQueue;
+
+    @Value("${rabbitmq.queue.chat-message}")
+    private String chatMessageQueue;
 
     // Routing Keys
     @Value("${rabbitmq.routing-key.otp-verification}")
@@ -109,6 +116,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing-key.match-response}")
     private String matchResponseRoutingKey;
 
+    @Value("${rabbitmq.routing-key.chat-message}")
+    private String chatMessageRoutingKey;
+
     // ─── Exchanges ────────────────────────────────────────────────────────────
 
     @Bean public TopicExchange authExchange()    { return new TopicExchange(authExchange); }
@@ -117,9 +127,8 @@ public class RabbitMQConfig {
     @Bean public TopicExchange hangoutExchange() { return new TopicExchange(hangoutExchange); }
     @Bean public TopicExchange friendshipExchange() { return new TopicExchange(friendshipExchange);}
     @Bean public TopicExchange matchingExchange() { return new TopicExchange(matchingExchange);}
-    @Bean public DirectExchange dlxExchange() {
-        return new DirectExchange(dlxExchange);
-    }
+    @Bean public TopicExchange chatExchange() { return new TopicExchange(chatExchange); }
+    @Bean public DirectExchange dlxExchange() { return new DirectExchange(dlxExchange);}
 
     // ─── Main queues ──────────────────────────────────────────
 
@@ -135,6 +144,8 @@ public class RabbitMQConfig {
     @Bean public Queue friendshipCreatedQueue() { return withDlx(friendshipCreatedQueue); }
     @Bean public Queue matchReceivedQueue()      { return withDlx(matchReceivedQueue); }
     @Bean public Queue matchResponseQueue()      { return withDlx(matchResponseQueue); }
+    @Bean public Queue chatMessageQueue() { return withDlx(chatMessageQueue); }
+
 
     private Queue withDlx(String queueName) {
         return QueueBuilder.durable(queueName)
@@ -157,6 +168,8 @@ public class RabbitMQConfig {
     @Bean public Queue friendshipCreatedDlq() { return new Queue(friendshipCreatedQueue + ".dlq"); }
     @Bean public Queue matchReceivedDlq()      { return new Queue(matchReceivedQueue + ".dlq"); }
     @Bean public Queue matchResponseDlq()      { return new Queue(matchResponseQueue + ".dlq"); }
+    @Bean public Queue chatMessageDlq()   { return new Queue(chatMessageQueue + ".dlq"); }
+
 
     // ─── DLQ Bindings  ────────────────────────────────────────────
 
@@ -172,6 +185,7 @@ public class RabbitMQConfig {
     @Bean public Binding friendshipCreatedDlqBinding() { return dlqBinding(friendshipCreatedDlq(), friendshipCreatedQueue); }
     @Bean public Binding matchReceivedDlqBinding()      { return dlqBinding(matchReceivedDlq(), matchReceivedQueue); }
     @Bean public Binding matchResponseDlqBinding()      { return dlqBinding(matchResponseDlq(), matchResponseQueue); }
+    @Bean public Binding chatMessageDlqBinding() { return dlqBinding(chatMessageDlq(), chatMessageQueue); }
 
     private Binding dlqBinding(Queue dlq, String originalQueueName) {
         return BindingBuilder.bind(dlq)
@@ -239,6 +253,11 @@ public class RabbitMQConfig {
     @Bean
     public Binding matchResponseBinding() {
         return BindingBuilder.bind(matchResponseQueue()).to(matchingExchange()).with(matchResponseRoutingKey);
+    }
+
+    @Bean
+    public Binding chatMessageBinding() {
+        return BindingBuilder.bind(chatMessageQueue()).to(chatExchange()).with(chatMessageRoutingKey);
     }
 
     // ─── Infrastructure ───────────────────────────────────────────────────────

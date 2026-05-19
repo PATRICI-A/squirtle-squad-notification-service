@@ -48,5 +48,8 @@ public enum NotificationType {
     MATCH_RESPONSE,
 
     /** A friendship was established between the user and another user. */
-    FRIENDSHIP_CREATED
+    FRIENDSHIP_CREATED,
+
+    /** A new direct message was sent to the user from another student. */
+    CHAT_MESSAGE
 }

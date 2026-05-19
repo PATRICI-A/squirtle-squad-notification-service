@@ -45,5 +45,6 @@ public class NotificationPreferencesDocument {
     private boolean matchReceived;
     private boolean matchResponse;
     private boolean friendshipCreated;
+    private boolean chatMessage;
     private LocalDateTime updatedAt;
 }
