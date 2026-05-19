@@ -132,9 +132,9 @@ public class RabbitMQConfig {
     @Bean public Queue invitationAcceptedQueue(){ return withDlx(invitationAcceptedQueue); }
     @Bean public Queue invitationSentQueue()   { return withDlx(invitationSentQueue); }
     @Bean public Queue memberJoinedQueue()     { return withDlx(memberJoinedQueue); }
-    @Bean public Queue friendshipCreatedQueue() { return new Queue(friendshipCreatedQueue); }
-    @Bean public Queue matchReceivedQueue()      { return new Queue(matchReceivedQueue); }
-    @Bean public Queue matchResponseQueue()      { return new Queue(matchResponseQueue); }
+    @Bean public Queue friendshipCreatedQueue() { return withDlx(friendshipCreatedQueue); }
+    @Bean public Queue matchReceivedQueue()      { return withDlx(matchReceivedQueue); }
+    @Bean public Queue matchResponseQueue()      { return withDlx(matchResponseQueue); }
 
     private Queue withDlx(String queueName) {
         return QueueBuilder.durable(queueName)
@@ -153,7 +153,10 @@ public class RabbitMQConfig {
     @Bean public Queue connectionRequestDlq(){ return new Queue(connectionRequestQueue + ".dlq"); }
     @Bean public Queue invitationAcceptedDlq(){ return new Queue(invitationAcceptedQueue + ".dlq"); }
     @Bean public Queue invitationSentDlq()   { return new Queue(invitationSentQueue + ".dlq"); }
-    @Bean public Queue memberJoinedDlq()     { return new Queue(memberJoinedQueue + ".dlq"); }
+    @Bean public Queue memberJoinedDlq()      { return new Queue(memberJoinedQueue + ".dlq"); }
+    @Bean public Queue friendshipCreatedDlq() { return new Queue(friendshipCreatedQueue + ".dlq"); }
+    @Bean public Queue matchReceivedDlq()      { return new Queue(matchReceivedQueue + ".dlq"); }
+    @Bean public Queue matchResponseDlq()      { return new Queue(matchResponseQueue + ".dlq"); }
 
     // ─── DLQ Bindings  ────────────────────────────────────────────
 
@@ -165,7 +168,10 @@ public class RabbitMQConfig {
     @Bean public Binding connectionRequestDlqBinding(){ return dlqBinding(connectionRequestDlq(), connectionRequestQueue); }
     @Bean public Binding invitationAcceptedDlqBinding(){ return dlqBinding(invitationAcceptedDlq(), invitationAcceptedQueue); }
     @Bean public Binding invitationSentDlqBinding()   { return dlqBinding(invitationSentDlq(), invitationSentQueue); }
-    @Bean public Binding memberJoinedDlqBinding()     { return dlqBinding(memberJoinedDlq(), memberJoinedQueue); }
+    @Bean public Binding memberJoinedDlqBinding()      { return dlqBinding(memberJoinedDlq(), memberJoinedQueue); }
+    @Bean public Binding friendshipCreatedDlqBinding() { return dlqBinding(friendshipCreatedDlq(), friendshipCreatedQueue); }
+    @Bean public Binding matchReceivedDlqBinding()      { return dlqBinding(matchReceivedDlq(), matchReceivedQueue); }
+    @Bean public Binding matchResponseDlqBinding()      { return dlqBinding(matchResponseDlq(), matchResponseQueue); }
 
     private Binding dlqBinding(Queue dlq, String originalQueueName) {
         return BindingBuilder.bind(dlq)
