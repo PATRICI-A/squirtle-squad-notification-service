@@ -29,6 +29,12 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.dlx}")
     private String dlxExchange;
 
+    @Value("${rabbitmq.exchange.friendship}")
+    private String friendshipExchange;
+
+    @Value("${rabbitmq.exchange.matching}")
+    private String matchingExchange;
+
     // Queues
     @Value("${rabbitmq.queue.otp-verification}")
     private String otpVerificationQueue;
@@ -56,6 +62,15 @@ public class RabbitMQConfig {
 
     @Value("${rabbitmq.queue.member-joined}")
     private String memberJoinedQueue;
+
+    @Value("${rabbitmq.queue.friendship-created}")
+    private String friendshipCreatedQueue;
+
+    @Value("${rabbitmq.queue.match-received}")
+    private String matchReceivedQueue;
+
+    @Value("${rabbitmq.queue.match-response}")
+    private String matchResponseQueue;
 
     // Routing Keys
     @Value("${rabbitmq.routing-key.otp-verification}")
@@ -85,19 +100,28 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing-key.member-joined}")
     private String memberJoinedRoutingKey;
 
+    @Value("${rabbitmq.routing-key.friendship-created}")
+    private String friendshipCreatedRoutingKey;
+
+    @Value("${rabbitmq.routing-key.match-received}")
+    private String matchReceivedRoutingKey;
+
+    @Value("${rabbitmq.routing-key.match-response}")
+    private String matchResponseRoutingKey;
+
     // ─── Exchanges ────────────────────────────────────────────────────────────
 
     @Bean public TopicExchange authExchange()    { return new TopicExchange(authExchange); }
     @Bean public TopicExchange parcheExchange()  { return new TopicExchange(parcheExchange); }
     @Bean public TopicExchange socialExchange()  { return new TopicExchange(socialExchange); }
     @Bean public TopicExchange hangoutExchange() { return new TopicExchange(hangoutExchange); }
-
-    @Bean
-    public DirectExchange dlxExchange() {
+    @Bean public TopicExchange friendshipExchange() { return new TopicExchange(friendshipExchange);}
+    @Bean public TopicExchange matchingExchange() { return new TopicExchange(matchingExchange);}
+    @Bean public DirectExchange dlxExchange() {
         return new DirectExchange(dlxExchange);
     }
 
-    // ─── Main queues (with DLX args) ──────────────────────────────────────────
+    // ─── Main queues ──────────────────────────────────────────
 
     @Bean public Queue otpVerificationQueue()  { return withDlx(otpVerificationQueue); }
     @Bean public Queue otpResendQueue()        { return withDlx(otpResendQueue); }
@@ -108,6 +132,9 @@ public class RabbitMQConfig {
     @Bean public Queue invitationAcceptedQueue(){ return withDlx(invitationAcceptedQueue); }
     @Bean public Queue invitationSentQueue()   { return withDlx(invitationSentQueue); }
     @Bean public Queue memberJoinedQueue()     { return withDlx(memberJoinedQueue); }
+    @Bean public Queue friendshipCreatedQueue() { return new Queue(friendshipCreatedQueue); }
+    @Bean public Queue matchReceivedQueue()      { return new Queue(matchReceivedQueue); }
+    @Bean public Queue matchResponseQueue()      { return new Queue(matchResponseQueue); }
 
     private Queue withDlx(String queueName) {
         return QueueBuilder.durable(queueName)
@@ -128,7 +155,7 @@ public class RabbitMQConfig {
     @Bean public Queue invitationSentDlq()   { return new Queue(invitationSentQueue + ".dlq"); }
     @Bean public Queue memberJoinedDlq()     { return new Queue(memberJoinedQueue + ".dlq"); }
 
-    // ─── DLQ Bindings (DLQ → DLX) ────────────────────────────────────────────
+    // ─── DLQ Bindings  ────────────────────────────────────────────
 
     @Bean public Binding otpVerificationDlqBinding()  { return dlqBinding(otpVerificationDlq(), otpVerificationQueue); }
     @Bean public Binding otpResendDlqBinding()        { return dlqBinding(otpResendDlq(), otpResendQueue); }
@@ -191,6 +218,21 @@ public class RabbitMQConfig {
     @Bean
     public Binding memberJoinedBinding() {
         return BindingBuilder.bind(memberJoinedQueue()).to(hangoutExchange()).with(memberJoinedRoutingKey);
+    }
+
+    @Bean
+    public Binding friendshipCreatedBinding() {
+        return BindingBuilder.bind(friendshipCreatedQueue()).to(friendshipExchange()).with(friendshipCreatedRoutingKey);
+    }
+
+    @Bean
+    public Binding matchReceivedBinding() {
+        return BindingBuilder.bind(matchReceivedQueue()).to(matchingExchange()).with(matchReceivedRoutingKey);
+    }
+
+    @Bean
+    public Binding matchResponseBinding() {
+        return BindingBuilder.bind(matchResponseQueue()).to(matchingExchange()).with(matchResponseRoutingKey);
     }
 
     // ─── Infrastructure ───────────────────────────────────────────────────────
