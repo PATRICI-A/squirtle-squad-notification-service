@@ -42,5 +42,8 @@ public class NotificationPreferencesDocument {
     private boolean invitationAccepted;
     private boolean invitationSent;
     private boolean memberJoined;
+    private boolean matchReceived;
+    private boolean matchResponse;
+    private boolean friendshipCreated;
     private LocalDateTime updatedAt;
 }

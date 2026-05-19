@@ -37,6 +37,9 @@ public class GetPreferencesUseCaseImpl implements GetPreferencesUseCase {
                         .invitationAccepted(true)
                         .invitationSent(true)
                         .memberJoined(true)
+                        .matchReceived(true)
+                        .matchResponse(true)
+                        .friendshipCreated(true)
                         .updatedAt(LocalDateTime.now())
                         .build());
     }

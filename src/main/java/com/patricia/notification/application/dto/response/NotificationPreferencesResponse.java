@@ -47,4 +47,13 @@ public class NotificationPreferencesResponse {
 
     @Schema(description = "Member joined parche notifications enabled", example = "true")
     private boolean memberJoined;
+
+    @Schema(description = "Match received notifications enabled", example = "true")
+    private boolean matchReceived;
+
+    @Schema(description = "Match response notifications enabled", example = "true")
+    private boolean matchResponse;
+
+    @Schema(description = "Friendship created notifications enabled", example = "true")
+    private boolean friendshipCreated;
 }

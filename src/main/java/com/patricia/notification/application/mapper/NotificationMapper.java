@@ -56,6 +56,9 @@ public class NotificationMapper {
                 .invitationAccepted(preferences.isInvitationAccepted())
                 .invitationSent(preferences.isInvitationSent())
                 .memberJoined(preferences.isMemberJoined())
+                .matchReceived(preferences.isMatchReceived())
+                .matchResponse(preferences.isMatchResponse())
+                .friendshipCreated(preferences.isFriendshipCreated())
                 .build();
     }
 
