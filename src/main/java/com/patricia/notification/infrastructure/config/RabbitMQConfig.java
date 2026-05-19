@@ -35,6 +35,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.matching}")
     private String matchingExchange;
 
+    @Value("${rabbitmq.exchange.gamification}")
+    private String gamificationExchange;
+
     @Value("${rabbitmq.exchange.chat}")
     private String chatExchange;
 
@@ -82,6 +85,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.queue.parche-message}")
     private String parcheMessageQueue;
 
+    @Value("${rabbitmq.queue.achievement-unlocked}")
+    private String achievementUnlockedQueue;
+
     // Routing Keys
     @Value("${rabbitmq.routing-key.otp-verification}")
     private String otpVerificationRoutingKey;
@@ -125,6 +131,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing-key.parche-message}")
     private String parcheMessageRoutingKey;
 
+    @Value("${rabbitmq.routing-key.achievement-unlocked}")
+    private String achievementUnlockedRoutingKey;
+
     // ─── Exchanges ────────────────────────────────────────────────────────────
 
     @Bean public TopicExchange authExchange()    { return new TopicExchange(authExchange); }
@@ -133,7 +142,8 @@ public class RabbitMQConfig {
     @Bean public TopicExchange hangoutExchange() { return new TopicExchange(hangoutExchange); }
     @Bean public TopicExchange friendshipExchange() { return new TopicExchange(friendshipExchange);}
     @Bean public TopicExchange matchingExchange() { return new TopicExchange(matchingExchange);}
-    @Bean public TopicExchange chatExchange() { return new TopicExchange(chatExchange); }
+    @Bean public TopicExchange chatExchange()          { return new TopicExchange(chatExchange); }
+    @Bean public TopicExchange gamificationExchange()  { return new TopicExchange(gamificationExchange); }
     @Bean public DirectExchange dlxExchange() { return new DirectExchange(dlxExchange);}
 
     // ─── Main queues ──────────────────────────────────────────
@@ -151,7 +161,8 @@ public class RabbitMQConfig {
     @Bean public Queue matchReceivedQueue()      { return withDlx(matchReceivedQueue); }
     @Bean public Queue matchResponseQueue()      { return withDlx(matchResponseQueue); }
     @Bean public Queue chatMessageQueue()   { return withDlx(chatMessageQueue); }
-    @Bean public Queue parcheMessageQueue() { return withDlx(parcheMessageQueue); }
+    @Bean public Queue parcheMessageQueue()        { return withDlx(parcheMessageQueue); }
+    @Bean public Queue achievementUnlockedQueue()  { return withDlx(achievementUnlockedQueue); }
 
 
     private Queue withDlx(String queueName) {
@@ -176,7 +187,8 @@ public class RabbitMQConfig {
     @Bean public Queue matchReceivedDlq()      { return new Queue(matchReceivedQueue + ".dlq"); }
     @Bean public Queue matchResponseDlq()      { return new Queue(matchResponseQueue + ".dlq"); }
     @Bean public Queue chatMessageDlq()    { return new Queue(chatMessageQueue + ".dlq"); }
-    @Bean public Queue parcheMessageDlq()  { return new Queue(parcheMessageQueue + ".dlq"); }
+    @Bean public Queue parcheMessageDlq()         { return new Queue(parcheMessageQueue + ".dlq"); }
+    @Bean public Queue achievementUnlockedDlq()   { return new Queue(achievementUnlockedQueue + ".dlq"); }
 
 
     // ─── DLQ Bindings  ────────────────────────────────────────────
@@ -194,7 +206,8 @@ public class RabbitMQConfig {
     @Bean public Binding matchReceivedDlqBinding()      { return dlqBinding(matchReceivedDlq(), matchReceivedQueue); }
     @Bean public Binding matchResponseDlqBinding()      { return dlqBinding(matchResponseDlq(), matchResponseQueue); }
     @Bean public Binding chatMessageDlqBinding()   { return dlqBinding(chatMessageDlq(), chatMessageQueue); }
-    @Bean public Binding parcheMessageDlqBinding() { return dlqBinding(parcheMessageDlq(), parcheMessageQueue); }
+    @Bean public Binding parcheMessageDlqBinding()        { return dlqBinding(parcheMessageDlq(), parcheMessageQueue); }
+    @Bean public Binding achievementUnlockedDlqBinding()  { return dlqBinding(achievementUnlockedDlq(), achievementUnlockedQueue); }
 
     private Binding dlqBinding(Queue dlq, String originalQueueName) {
         return BindingBuilder.bind(dlq)
@@ -272,6 +285,11 @@ public class RabbitMQConfig {
     @Bean
     public Binding parcheMessageBinding() {
         return BindingBuilder.bind(parcheMessageQueue()).to(parcheExchange()).with(parcheMessageRoutingKey);
+    }
+
+    @Bean
+    public Binding achievementUnlockedBinding() {
+        return BindingBuilder.bind(achievementUnlockedQueue()).to(gamificationExchange()).with(achievementUnlockedRoutingKey);
     }
 
     // ─── Infrastructure ───────────────────────────────────────────────────────
