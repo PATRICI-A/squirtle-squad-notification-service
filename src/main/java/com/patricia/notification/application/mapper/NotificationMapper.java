@@ -58,6 +58,8 @@ public class NotificationMapper {
                 .matchReceived(preferences.isMatchReceived())
                 .matchResponse(preferences.isMatchResponse())
                 .friendshipCreated(preferences.isFriendshipCreated())
+                .chatMessage(preferences.isChatMessage())
+                .eventChange(preferences.isEventChange())
                 .build();
     }
 

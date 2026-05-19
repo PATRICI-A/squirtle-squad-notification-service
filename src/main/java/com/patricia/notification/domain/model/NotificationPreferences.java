@@ -36,6 +36,7 @@ public class NotificationPreferences {
     private boolean matchResponse;
     private boolean friendshipCreated;
     private boolean chatMessage;
+    private boolean eventChange;
 
     /** Timestamp of the last preference change. */
     private LocalDateTime updatedAt;
@@ -62,6 +63,7 @@ public class NotificationPreferences {
             case MATCH_RESPONSE -> this.matchResponse;
             case FRIENDSHIP_CREATED -> this.friendshipCreated;
             case CHAT_MESSAGE -> this.chatMessage;
+            case EVENT_CHANGE -> this.eventChange;
         };
     }
 
@@ -88,6 +90,7 @@ public class NotificationPreferences {
             case MATCH_RESPONSE -> this.matchResponse = enabled;
             case FRIENDSHIP_CREATED -> this.friendshipCreated = enabled;
             case CHAT_MESSAGE -> this.chatMessage = enabled;
+            case EVENT_CHANGE -> this.eventChange = enabled;
         };
         this.updatedAt = LocalDateTime.now();
     }

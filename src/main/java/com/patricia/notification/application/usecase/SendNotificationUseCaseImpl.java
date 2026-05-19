@@ -103,6 +103,8 @@ public class SendNotificationUseCaseImpl implements SendNotificationUseCase {
                 .matchReceived(true)
                 .matchResponse(true)
                 .friendshipCreated(true)
+                .chatMessage(true)
+                .eventChange(true)
                 .build();
     }
 }

@@ -38,6 +38,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.exchange.gamification}")
     private String gamificationExchange;
 
+    @Value("${rabbitmq.exchange.events}")
+    private String eventsExchange;
+
     @Value("${rabbitmq.exchange.chat}")
     private String chatExchange;
 
@@ -88,6 +91,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.queue.achievement-unlocked}")
     private String achievementUnlockedQueue;
 
+    @Value("${rabbitmq.queue.event-change}")
+    private String eventChangeQueue;
+
     // Routing Keys
     @Value("${rabbitmq.routing-key.otp-verification}")
     private String otpVerificationRoutingKey;
@@ -134,6 +140,9 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.routing-key.achievement-unlocked}")
     private String achievementUnlockedRoutingKey;
 
+    @Value("${rabbitmq.routing-key.event-change}")
+    private String eventChangeRoutingKey;
+
     // ─── Exchanges ────────────────────────────────────────────────────────────
 
     @Bean public TopicExchange authExchange()    { return new TopicExchange(authExchange); }
@@ -144,6 +153,7 @@ public class RabbitMQConfig {
     @Bean public TopicExchange matchingExchange() { return new TopicExchange(matchingExchange);}
     @Bean public TopicExchange chatExchange()          { return new TopicExchange(chatExchange); }
     @Bean public TopicExchange gamificationExchange()  { return new TopicExchange(gamificationExchange); }
+    @Bean public TopicExchange eventsExchange()        { return new TopicExchange(eventsExchange); }
     @Bean public DirectExchange dlxExchange() { return new DirectExchange(dlxExchange);}
 
     // ─── Main queues ──────────────────────────────────────────
@@ -163,6 +173,7 @@ public class RabbitMQConfig {
     @Bean public Queue chatMessageQueue()   { return withDlx(chatMessageQueue); }
     @Bean public Queue parcheMessageQueue()        { return withDlx(parcheMessageQueue); }
     @Bean public Queue achievementUnlockedQueue()  { return withDlx(achievementUnlockedQueue); }
+    @Bean public Queue eventChangeQueue()          { return withDlx(eventChangeQueue); }
 
 
     private Queue withDlx(String queueName) {
@@ -189,6 +200,7 @@ public class RabbitMQConfig {
     @Bean public Queue chatMessageDlq()    { return new Queue(chatMessageQueue + ".dlq"); }
     @Bean public Queue parcheMessageDlq()         { return new Queue(parcheMessageQueue + ".dlq"); }
     @Bean public Queue achievementUnlockedDlq()   { return new Queue(achievementUnlockedQueue + ".dlq"); }
+    @Bean public Queue eventChangeDlq()           { return new Queue(eventChangeQueue + ".dlq"); }
 
 
     // ─── DLQ Bindings  ────────────────────────────────────────────
@@ -208,6 +220,7 @@ public class RabbitMQConfig {
     @Bean public Binding chatMessageDlqBinding()   { return dlqBinding(chatMessageDlq(), chatMessageQueue); }
     @Bean public Binding parcheMessageDlqBinding()        { return dlqBinding(parcheMessageDlq(), parcheMessageQueue); }
     @Bean public Binding achievementUnlockedDlqBinding()  { return dlqBinding(achievementUnlockedDlq(), achievementUnlockedQueue); }
+    @Bean public Binding eventChangeDlqBinding()          { return dlqBinding(eventChangeDlq(), eventChangeQueue); }
 
     private Binding dlqBinding(Queue dlq, String originalQueueName) {
         return BindingBuilder.bind(dlq)
@@ -290,6 +303,11 @@ public class RabbitMQConfig {
     @Bean
     public Binding achievementUnlockedBinding() {
         return BindingBuilder.bind(achievementUnlockedQueue()).to(gamificationExchange()).with(achievementUnlockedRoutingKey);
+    }
+
+    @Bean
+    public Binding eventChangeBinding() {
+        return BindingBuilder.bind(eventChangeQueue()).to(eventsExchange()).with(eventChangeRoutingKey);
     }
 
     // ─── Infrastructure ───────────────────────────────────────────────────────

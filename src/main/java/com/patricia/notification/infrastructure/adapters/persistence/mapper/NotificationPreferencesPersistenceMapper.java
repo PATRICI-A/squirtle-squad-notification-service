@@ -47,6 +47,7 @@ public class NotificationPreferencesPersistenceMapper {
                 .matchResponse(preferences.isMatchResponse())
                 .friendshipCreated(preferences.isFriendshipCreated())
                 .chatMessage(preferences.isChatMessage())
+                .eventChange(preferences.isEventChange())
                 .updatedAt(preferences.getUpdatedAt())
                 .build();
     }
@@ -76,6 +77,7 @@ public class NotificationPreferencesPersistenceMapper {
                 .matchResponse(doc.isMatchResponse())
                 .friendshipCreated(doc.isFriendshipCreated())
                 .chatMessage(doc.isChatMessage())
+                .eventChange(doc.isEventChange())
                 .updatedAt(doc.getUpdatedAt())
                 .build();
     }

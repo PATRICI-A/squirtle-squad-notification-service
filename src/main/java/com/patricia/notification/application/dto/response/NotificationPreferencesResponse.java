@@ -53,4 +53,10 @@ public class NotificationPreferencesResponse {
 
     @Schema(description = "Friendship created notifications enabled", example = "true")
     private boolean friendshipCreated;
+
+    @Schema(description = "Direct chat message notifications enabled", example = "true")
+    private boolean chatMessage;
+
+    @Schema(description = "Event change or cancellation notifications enabled", example = "true")
+    private boolean eventChange;
 }

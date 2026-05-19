@@ -48,5 +48,8 @@ public enum NotificationType {
     FRIENDSHIP_CREATED,
 
     /** A new direct message was sent to the user from another student. */
-    CHAT_MESSAGE
+    CHAT_MESSAGE,
+
+    /** An event the user RSVPed to was modified or cancelled. */
+    EVENT_CHANGE
 }

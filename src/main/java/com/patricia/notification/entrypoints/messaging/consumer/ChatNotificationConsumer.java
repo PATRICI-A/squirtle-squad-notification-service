@@ -9,6 +9,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
+/**
+ * RabbitMQ consumer for direct chat notification events.
+ *
+ * <p>Handles direct message events published by the chat service when one student
+ * sends a private message to another. Malformed messages are rejected to the
+ * dead-letter queue.</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -17,6 +24,11 @@ public class ChatNotificationConsumer {
     private final SendNotificationUseCase sendNotificationUseCase;
     private final EventDtoValidator eventDtoValidator;
 
+    /**
+     * Notifies a user that they received a new direct message.
+     *
+     * @param event the chat message event from the chat service
+     */
     @RabbitListener(queues = "${rabbitmq.queue.chat-message}")
     public void handleChatMessage(ChatMessageEventDto event) {
         eventDtoValidator.validate(event);

@@ -43,6 +43,8 @@ public class UpdatePreferencesUseCaseImpl implements UpdatePreferencesUseCase {
                         .matchReceived(true)
                         .matchResponse(true)
                         .friendshipCreated(true)
+                        .chatMessage(true)
+                        .eventChange(true)
                         .updatedAt(LocalDateTime.now())
                         .build());
 
